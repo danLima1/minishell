@@ -1,0 +1,51 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   lexer_main.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/15 10:00:00 by ldos_sa2          #+#    #+#             */
+/*   Updated: 2025/01/15 10:00:00 by ldos_sa2         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "../minishell.h"
+
+void	print_tokens(t_token *tokens)
+{
+	t_token	*current;
+
+	current = tokens;
+	while (current)
+	{
+		printf("Token: '%s', Type: %d\n", current->value, current->type);
+		current = current->next;
+	}
+}
+
+int	validate_tokens(t_token *tokens)
+{
+	t_token	*current;
+	int		pipe_count;
+
+	if (!tokens)
+		return (0);
+	current = tokens;
+	pipe_count = 0;
+	if (current->type == TOKEN_PIPE)
+		return (0);
+	while (current)
+	{
+		if (current->type == TOKEN_PIPE)
+		{
+			pipe_count++;
+			if (!current->next || current->next->type == TOKEN_PIPE)
+				return (0);
+		}
+		current = current->next;
+	}
+	if (current && current->type == TOKEN_PIPE)
+		return (0);
+	return (1);
+}

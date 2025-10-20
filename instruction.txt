@@ -1,0 +1,69 @@
+Parte Obrigatória
+Nome do programa
+minishell
+Arquivos para entregar
+Makefile, *.h, *.c
+Makefile NAME, all, clean, fclean, re
+Argumentos
+Funções externas
+autorizadas
+readline, rl_clear_history, rl_on_new_line,
+rl_replace_line, rl_redisplay, add_history,
+printf, malloc, free, write, access, open, read,
+close, fork, wait, waitpid, wait3, wait4, signal,
+sigaction, sigemptyset, sigaddset, kill, exit,
+getcwd, chdir, stat, lstat, fstat, unlink, execve,
+dup, dup2, pipe, opendir, readdir, closedir,
+strerror, perror, isatty, ttyname, ttyslot, ioctl,
+getenv, tcsetattr, tcgetattr, tgetent, tgetflag,
+tgetnum, tgetstr, tgoto, tputs
+Libft autorizada Sim
+Descrição Escreva um shell
+Seu shell deve:
+• Exibir um prompt enquanto aguarda um novo comando.
+• Ter um histórico funcional.
+• Pesquisar e iniciar o executável correto (com base na variável PATH ou usando um
+caminho relativo ou absoluto).
+• Usar no máximo uma variável global para indicar um sinal recebido. Considere
+as implicações: essa abordagem garante que seu manipulador de sinal não acessará
+suas estruturas de dados principais.
+8
+Minishell Tão belo quanto uma concha
+Cuidado. Essa variável global deve armazenar apenas o número do
+sinal e não deve fornecer informações adicionais ou acesso a dados.
+Portanto, o uso de estruturas do tipo "norm"no escopo global é
+proibido.
+• Não interpretar aspas não fechadas ou caracteres especiais que não são necessários
+pelo enunciado, como \ (barra invertida) ou ; (ponto e vírgula).
+• Lidar com ’ (aspas simples), que deve impedir o shell de interpretar os metacaracteres na sequência entre aspas.
+• Lidar com " (aspas duplas), que deve impedir o shell de interpretar os metacaracteres na sequência entre aspas, exceto para $ (sinal de dólar).
+• Implementar os seguintes redirecionamentos:
+◦ < deve redirecionar a entrada.
+◦ > deve redirecionar a saída.
+◦ << deve receber um delimitador, então ler a entrada até que uma linha contendo
+o delimitador seja encontrada. No entanto, não precisa atualizar o histórico!
+◦ >> deve redirecionar a saída no modo de anexação.
+• Implementar pipes (caractere |). A saída de cada comando no pipeline é conectada
+à entrada do próximo comando via um pipe.
+• Lidar com variáveis de ambiente ($ seguido de uma sequência de caracteres),
+que devem ser expandidas para seus valores.
+• Lidar com $? que deve expandir para o status de saída do pipeline em primeiro
+plano mais recentemente executado.
+• Lidar com ctrl-C, ctrl-D e ctrl-\ que devem se comportar como em bash.
+• No modo interativo:
+◦ ctrl-C exibe um novo prompt em uma nova linha.
+◦ ctrl-D sai do shell.
+◦ ctrl-\ não faz nada.
+• Seu shell deve implementar os seguintes comandos built-in:
+◦ echo com a opção -n
+9
+Minishell Tão belo quanto uma concha
+◦ cd com apenas um caminho relativo ou absoluto
+◦ pwd sem opções
+◦ export sem opções
+◦ unset sem opções
+◦ env sem opções ou argumentos
+◦ exit sem opções
+A função readline() pode causar vazamentos de memória, mas você não é obrigado a
+corrigi-los. No entanto, isso não significa que seu próprio código, sim o código
+que você escreveu, pode ter vazamentos de memória.
