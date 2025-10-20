@@ -80,7 +80,7 @@ typedef struct s_shell
 	int					stdout_backup;
 }	t_shell;
 
-/* Legacy functions (to be refactored) */
+/* Legacy precisa de refatoracao */
 char		**ms_split(const char *s);
 int			count_words(const char *s);
 t_token		*newnode(char *v, t_token_type type);
@@ -92,51 +92,45 @@ int			handle_q(const char *s, int *i);
 void		free_nodelist(t_token *list);
 void		split_process(char *input);
 
-/* Lexer functions */
+/* Lexer  */
 t_token		*lexer_tokenize(char *input);
-void		lexer_free_tokens(t_token *tokens);
+void		print_tokens(t_token *tokens);
+int			validate_tokens(t_token *tokens);
 
-/* Parser functions */
-t_cmd		*parser_parse(t_token *tokens);
-void		parser_free_cmds(t_cmd *cmds);
+/* Parser  */
+t_cmd		*parse_tokens(t_token *tokens);
+void		free_cmd_list(t_cmd *cmd_list);
+void		print_cmd_list(t_cmd *cmd_list);
+int			count_commands(t_cmd *cmd_list);
 
-/* Expander functions */
-char		*expander_expand(char *str, t_shell *shell);
-char		*expander_get_var(char *var, t_shell *shell);
+/* Expander  */
+char		*expand_string(char *str, t_env *env, int last_exit);
 
-/* Executor functions */
-int			executor_execute(t_cmd *cmds, t_shell *shell);
-int			executor_exec_cmd(t_cmd *cmd, t_shell *shell);
+/* Executor  */
+int			execute_command(t_cmd *cmd, t_shell *shell);
 
-/* Builtins functions */
+/* Builtins  */
 int			builtin_echo(char **args);
-int			builtin_cd(char **args, t_shell *shell);
-int			builtin_pwd(void);
-int			builtin_export(char **args, t_shell *shell);
-int			builtin_unset(char **args, t_shell *shell);
-int			builtin_env(t_shell *shell);
-int			builtin_exit(char **args, t_shell *shell);
-int			is_builtin(char *cmd);
+int			builtin_pwd(char **args);
+int			builtin_env(char **args, t_env *env);
+int			builtin_exit(char **args);
 
-/* Environment functions */
-t_env		*env_init(char **envp);
-char		*env_get(char *key, t_env *env);
-void		env_set(char *key, char *value, t_env **env);
-void		env_unset(char *key, t_env **env);
-char		**env_to_array(t_env *env);
-void		env_free(t_env *env);
+/* Environment  */
+t_env		*init_env(char **envp);
+t_env		*create_env_node(char *key, char *value);
+void		add_env_node(t_env **env, t_env *new_node);
+void		free_env(t_env *env);
 
 /* Utils functions */
-char		*utils_strjoin_free(char *s1, char *s2);
-char		**utils_split_path(char *path);
-char		*utils_find_executable(char *cmd, t_env *env);
-void		utils_free_array(char **array);
+int			ft_strcmp(const char *s1, const char *s2);
+char		*ft_strncpy(char *dest, const char *src, size_t n);
+char		*ft_strcpy(char *dest, const char *src);
 
-/* Error functions */
+/* Error */
 void		error_print(char *cmd, char *arg, char *msg);
 void		error_exit(char *msg, int exit_code);
 
-/* Signal functions */
+/* Signal */
 void		signals_init(void);
 void		signals_handle_sigint(int sig);
 void		signals_handle_sigquit(int sig);

@@ -63,15 +63,13 @@ int	execute_command(t_cmd *cmd, t_shell *shell)
 			perror("minishell");
 			exit(127);
 		}
+		exit(0);
 	}
 	else if (pid > 0)
 	{
 		waitpid(pid, &status, 0);
 		return (WEXITSTATUS(status));
 	}
-	else
-	{
-		perror("fork");
-		return (1);
-	}
+	perror("fork");
+	return (1);
 }

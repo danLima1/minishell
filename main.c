@@ -24,7 +24,7 @@ int	main(int argc, char **argv, char **envp)
 	(void)argc;
 	(void)argv;
 	shell.env = init_env(envp);
-	shell.last_exit_status = 0;
+	shell.exit_status = 0;
 	while (1)
 	{
 		input = readline("minishell$ ");
@@ -41,7 +41,7 @@ int	main(int argc, char **argv, char **envp)
 			commands = parse_tokens(tokens);
 			if (commands)
 			{
-				shell.last_exit_status = execute_command(commands, &shell);
+				shell.exit_status = execute_command(commands, &shell);
 				free_cmd_list(commands);
 			}
 		}
@@ -49,5 +49,5 @@ int	main(int argc, char **argv, char **envp)
 		free(input);
 	}
 	free_env(shell.env);
-	return (shell.last_exit_status);
+	return (shell.exit_status);
 }

@@ -20,7 +20,7 @@ static t_cmd	*create_cmd(void)
 	if (!cmd)
 		return (NULL);
 	cmd->args = NULL;
-	cmd->redirections = NULL;
+	cmd->redirs = NULL;
 	cmd->next = NULL;
 	return (cmd);
 }

@@ -3,7 +3,7 @@ NAME = minishell
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror -g
 
-LIBFT_DIR = libft
+LIBFT_DIR = Libft
 LIBFT = $(LIBFT_DIR)/libft.a
 
 SRCDIR = .
@@ -31,11 +31,12 @@ SRCS = main.c \
        $(BUILTINS_DIR)/builtin_exit.c \
        $(ERROR_DIR)/error_handler.c \
        $(UTILS_DIR)/node_utils.c \
-       $(UTILS_DIR)/env_utils.c
+       $(UTILS_DIR)/env_utils.c \
+       $(UTILS_DIR)/string_utils.c
 
 OBJS = $(SRCS:.c=.o)
 
-LIBS = -lreadline -L$(LIBFT_DIR) -lft
+LIBS = -lreadline $(LIBFT)
 
 all: $(LIBFT) $(NAME)
 
