@@ -12,38 +12,41 @@
 
 #include "../minishell.h"
 
-int	builtin_unset(char **args, t_env **env)
+static void	remove_env_var(t_env **env, char *var_name)
 {
 	t_env	*current;
 	t_env	*prev;
-	int		i;
+
+	current = *env;
+	prev = NULL;
+	while (current)
+	{
+		if (ft_strcmp(current->key, var_name) == 0)
+		{
+			if (prev)
+				prev->next = current->next;
+			else
+				*env = current->next;
+			free(current->key);
+			free(current->value);
+			free(current);
+			break ;
+		}
+		prev = current;
+		current = current->next;
+	}
+}
+
+int	builtin_unset(char **args, t_env **env)
+{
+	int	i;
 
 	if (!args[1])
 		return (0);
-	
 	i = 1;
 	while (args[i])
 	{
-		current = *env;
-		prev = NULL;
-		
-		while (current)
-		{
-			if (ft_strcmp(current->key, args[i]) == 0)
-			{
-				if (prev)
-					prev->next = current->next;
-				else
-					*env = current->next;
-				
-				free(current->key);
-				free(current->value);
-				free(current);
-				break ;
-			}
-			prev = current;
-			current = current->next;
-		}
+		remove_env_var(env, args[i]);
 		i++;
 	}
 	return (0);

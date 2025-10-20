@@ -12,6 +12,20 @@
 
 #include "../minishell.h"
 
+void	free_redir_list(t_redir *redir_list)
+{
+	t_redir	*tmp;
+
+	while (redir_list)
+	{
+		tmp = redir_list->next;
+		if (redir_list->file)
+			free(redir_list->file);
+		free(redir_list);
+		redir_list = tmp;
+	}
+}
+
 void	free_cmd_list(t_cmd *cmd_list)
 {
 	t_cmd	*tmp;
@@ -30,6 +44,8 @@ void	free_cmd_list(t_cmd *cmd_list)
 			}
 			free(cmd_list->args);
 		}
+		if (cmd_list->redirs)
+			free_redir_list(cmd_list->redirs);
 		free(cmd_list);
 		cmd_list = tmp;
 	}

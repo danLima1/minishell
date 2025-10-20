@@ -34,6 +34,18 @@ static int	execute_builtin_with_redir(t_cmd *cmd, t_shell *shell)
 	return (result);
 }
 
+static void	execute_child_process(t_cmd *cmd, char *executable)
+{
+	if (handle_redirections(cmd->redirs) != 0)
+		exit(1);
+	if (execve(executable, cmd->args, NULL) == -1)
+	{
+		perror("minishell");
+		exit(127);
+	}
+	exit(0);
+}
+
 static int	execute_external_command(t_cmd *cmd, t_shell *shell)
 {
 	pid_t	pid;
@@ -44,14 +56,7 @@ static int	execute_external_command(t_cmd *cmd, t_shell *shell)
 	pid = fork();
 	if (pid == 0)
 	{
-		if (handle_redirections(cmd->redirs) != 0)
-			exit(1);
-		if (execve(executable, cmd->args, NULL) == -1)
-		{
-			perror("minishell");
-			exit(127);
-		}
-		exit(0);
+		execute_child_process(cmd, executable);
 	}
 	else if (pid > 0)
 	{

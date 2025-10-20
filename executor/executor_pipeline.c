@@ -58,11 +58,39 @@ static int	handle_parent_process(int prev_fd, int *pipe_fd, t_cmd *current)
 	return (WEXITSTATUS(status));
 }
 
-int	execute_pipeline(t_cmd *cmd_list, t_shell *shell)
+static int	process_pipeline_command(t_cmd *current, t_shell *shell, int *prev_fd)
 {
 	int		pipe_fd[2];
-	int		prev_fd;
 	pid_t	pid;
+
+	if (current->next && pipe(pipe_fd) == -1)
+	{
+		perror("pipe");
+		return (1);
+	}
+	pid = fork();
+	if (pid == 0)
+	{
+		setup_child_pipes(*prev_fd, pipe_fd, current);
+		execute_child_process(current, shell);
+	}
+	else if (pid > 0)
+	{
+		if (current->next)
+			*prev_fd = pipe_fd[0];
+		return (handle_parent_process(*prev_fd, pipe_fd, current));
+	}
+	else
+	{
+		perror("fork");
+		return (1);
+	}
+	return (0);
+}
+
+int	execute_pipeline(t_cmd *cmd_list, t_shell *shell)
+{
+	int		prev_fd;
 	t_cmd	*current;
 	int		last_status;
 
@@ -71,26 +99,9 @@ int	execute_pipeline(t_cmd *cmd_list, t_shell *shell)
 	last_status = 0;
 	while (current)
 	{
-		if (current->next && pipe(pipe_fd) == -1)
-		{
-			perror("pipe");
-			return (1);
-		}
-		pid = fork();
-		if (pid == 0)
-		{
-			setup_child_pipes(prev_fd, pipe_fd, current);
-			execute_child_process(current, shell);
-		}
-		else if (pid > 0)
-			last_status = handle_parent_process(prev_fd, pipe_fd, current);
-		else
-		{
-			perror("fork");
-			return (1);
-		}
-		if (current->next)
-			prev_fd = pipe_fd[0];
+		last_status = process_pipeline_command(current, shell, &prev_fd);
+		if (last_status != 0)
+			return (last_status);
 		current = current->next;
 	}
 	return (last_status);

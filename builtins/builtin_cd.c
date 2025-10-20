@@ -12,25 +12,29 @@
 
 #include "../minishell.h"
 
+static char	*get_home_path(t_env *env)
+{
+	t_env	*current;
+
+	current = env;
+	while (current)
+	{
+		if (ft_strcmp(current->key, "HOME") == 0)
+			return (current->value);
+		current = current->next;
+	}
+	return (NULL);
+}
+
 int	builtin_cd(char **args, t_env *env)
 {
 	char	*path;
 	char	*home;
-	t_env	*current;
 
 	if (!args[1])
 	{
-		current = env;
-		while (current)
-		{
-			if (ft_strcmp(current->key, "HOME") == 0)
-			{
-				home = current->value;
-				break ;
-			}
-			current = current->next;
-		}
-		if (!current || !home)
+		home = get_home_path(env);
+		if (!home)
 		{
 			ft_putstr_fd("minishell: cd: HOME not set\n", 2);
 			return (1);
