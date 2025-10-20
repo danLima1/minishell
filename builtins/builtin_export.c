@@ -54,11 +54,29 @@ static int	add_or_update_env(t_env **env, char *key, char *value)
 	return (0);
 }
 
-int	builtin_export(char **args, t_env **env)
+static void	process_export_arg(char *arg, t_env **env)
 {
 	char	*equal_sign;
 	char	*key;
 	char	*value;
+
+	equal_sign = ft_strchr(arg, '=');
+	if (equal_sign)
+	{
+		*equal_sign = '\0';
+		key = arg;
+		value = equal_sign + 1;
+		add_or_update_env(env, key, value);
+		*equal_sign = '=';
+	}
+	else
+	{
+		add_or_update_env(env, arg, "");
+	}
+}
+
+int	builtin_export(char **args, t_env **env)
+{
 	int		i;
 
 	if (!args[1])
@@ -70,19 +88,7 @@ int	builtin_export(char **args, t_env **env)
 	i = 1;
 	while (args[i])
 	{
-		equal_sign = ft_strchr(args[i], '=');
-		if (equal_sign)
-		{
-			*equal_sign = '\0';
-			key = args[i];
-			value = equal_sign + 1;
-			add_or_update_env(env, key, value);
-			*equal_sign = '=';
-		}
-		else
-		{
-			add_or_update_env(env, args[i], "");
-		}
+		process_export_arg(args[i], env);
 		i++;
 	}
 	return (0);

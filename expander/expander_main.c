@@ -51,17 +51,43 @@ static char	*expand_variable(char *var_name, t_env *env, int last_exit)
 	return (ft_strdup(""));
 }
 
-char	*expand_string(char *str, t_env *env, int last_exit)
+static int	process_variable(char *str, int *i, char *result, int *j, t_env *env, int last_exit)
 {
-	char	*result;
 	char	*var_name;
 	char	*var_value;
-	int		i;
-	int		j;
+
+	(*i)++;
+	var_name = get_var_name(str, i);
+	if (!var_name)
+		return (0);
+	var_value = expand_variable(var_name, env, last_exit);
+	if (var_value)
+	{
+		ft_strcpy(result + *j, var_value);
+		*j += ft_strlen(var_value);
+		free(var_value);
+	}
+	free(var_name);
+	return (1);
+}
+
+static char	*init_result_buffer(char *str)
+{
+	char	*result;
 
 	if (!str)
 		return (NULL);
 	result = malloc(ft_strlen(str) * 2 + 1);
+	return (result);
+}
+
+char	*expand_string(char *str, t_env *env, int last_exit)
+{
+	char	*result;
+	int		i;
+	int		j;
+
+	result = init_result_buffer(str);
 	if (!result)
 		return (NULL);
 	i = 0;
@@ -70,16 +96,11 @@ char	*expand_string(char *str, t_env *env, int last_exit)
 	{
 		if (str[i] == '$' && str[i + 1])
 		{
-			i++;
-			var_name = get_var_name(str, &i);
-			var_value = expand_variable(var_name, env, last_exit);
-			if (var_value)
+			if (!process_variable(str, &i, result, &j, env, last_exit))
 			{
-				ft_strcpy(result + j, var_value);
-				j += ft_strlen(var_value);
-				free(var_value);
+				free(result);
+				return (NULL);
 			}
-			free(var_name);
 		}
 		else
 			result[j++] = str[i++];

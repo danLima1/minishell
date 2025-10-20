@@ -14,12 +14,28 @@
 
 int	g_signal_received = 0;
 
+static void	process_input(char *input, t_shell *shell)
+{
+	t_token	*tokens;
+	t_cmd	*commands;
+
+	tokens = lexer_tokenize(input);
+	if (tokens && validate_tokens(tokens))
+	{
+		commands = parse_tokens(tokens, shell->env, shell->exit_status);
+		if (commands)
+		{
+			shell->exit_status = execute_command(commands, shell);
+			free_cmd_list(commands);
+		}
+	}
+	free_nodelist(tokens);
+}
+
 int	main(int argc, char **argv, char **envp)
 {
 	t_shell	shell;
 	char	*input;
-	t_token	*tokens;
-	t_cmd	*commands;
 
 	(void)argc;
 	(void)argv;
@@ -37,17 +53,7 @@ int	main(int argc, char **argv, char **envp)
 		}
 		if (*input)
 			add_history(input);
-		tokens = lexer_tokenize(input);
-		if (tokens && validate_tokens(tokens))
-		{
-			commands = parse_tokens(tokens, shell.env, shell.exit_status);
-			if (commands)
-			{
-				shell.exit_status = execute_command(commands, &shell);
-				free_cmd_list(commands);
-			}
-		}
-		free_nodelist(tokens);
+		process_input(input, &shell);
 		free(input);
 	}
 	free_env(shell.env);
