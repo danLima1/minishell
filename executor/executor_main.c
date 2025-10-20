@@ -12,7 +12,7 @@
 
 #include "../minishell.h"
 
-static int	is_builtin(char *cmd)
+int	is_builtin(char *cmd)
 {
 	if (!cmd)
 		return (0);
@@ -33,7 +33,7 @@ static int	is_builtin(char *cmd)
 	return (0);
 }
 
-static int	execute_builtin(char **args, t_shell *shell)
+int	execute_builtin(char **args, t_shell *shell)
 {
 	if (ft_strcmp(args[0], "echo") == 0)
 		return (builtin_echo(args));
@@ -43,33 +43,21 @@ static int	execute_builtin(char **args, t_shell *shell)
 		return (builtin_env(args, shell->env));
 	if (ft_strcmp(args[0], "exit") == 0)
 		return (builtin_exit(args));
+	if (ft_strcmp(args[0], "cd") == 0)
+		return (builtin_cd(args, shell->env));
+	if (ft_strcmp(args[0], "export") == 0)
+		return (builtin_export(args, &shell->env));
+	if (ft_strcmp(args[0], "unset") == 0)
+		return (builtin_unset(args, &shell->env));
 	return (1);
 }
 
 int	execute_command(t_cmd *cmd, t_shell *shell)
 {
-	pid_t	pid;
-	int		status;
-
-	if (!cmd || !cmd->args || !cmd->args[0])
+	if (!cmd)
 		return (1);
-	if (is_builtin(cmd->args[0]))
-		return (execute_builtin(cmd->args, shell));
-	pid = fork();
-	if (pid == 0)
-	{
-		if (execve(cmd->args[0], cmd->args, NULL) == -1)
-		{
-			perror("minishell");
-			exit(127);
-		}
-		exit(0);
-	}
-	else if (pid > 0)
-	{
-		waitpid(pid, &status, 0);
-		return (WEXITSTATUS(status));
-	}
-	perror("fork");
-	return (1);
+	if (!cmd->next)
+		return (execute_single_command(cmd, shell));
+	else
+		return (execute_pipeline(cmd, shell));
 }

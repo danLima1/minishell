@@ -25,8 +25,10 @@ int	main(int argc, char **argv, char **envp)
 	(void)argv;
 	shell.env = init_env(envp);
 	shell.exit_status = 0;
+	signals_init();
 	while (1)
 	{
+		g_signal_received = 0;
 		input = readline("minishell$ ");
 		if (!input)
 		{
@@ -38,7 +40,7 @@ int	main(int argc, char **argv, char **envp)
 		tokens = lexer_tokenize(input);
 		if (tokens && validate_tokens(tokens))
 		{
-			commands = parse_tokens(tokens);
+			commands = parse_tokens(tokens, shell.env, shell.exit_status);
 			if (commands)
 			{
 				shell.exit_status = execute_command(commands, &shell);

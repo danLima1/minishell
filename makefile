@@ -16,23 +16,14 @@ ERROR_DIR = error
 UTILS_DIR = utils
 
 SRCS = main.c \
-       signals.c \
-       $(LEXER_DIR)/lexer_split.c \
-       $(LEXER_DIR)/lexer_tokens.c \
-       $(LEXER_DIR)/lexer_utils.c \
-       $(LEXER_DIR)/lexer_main.c \
-       $(PARSER_DIR)/parser_main.c \
-       $(PARSER_DIR)/parser_utils.c \
-       $(EXPANDER_DIR)/expander_main.c \
-       $(EXECUTOR_DIR)/executor_main.c \
-       $(BUILTINS_DIR)/builtin_echo.c \
-       $(BUILTINS_DIR)/builtin_pwd.c \
-       $(BUILTINS_DIR)/builtin_env.c \
-       $(BUILTINS_DIR)/builtin_exit.c \
-       $(ERROR_DIR)/error_handler.c \
-       $(UTILS_DIR)/node_utils.c \
-       $(UTILS_DIR)/env_utils.c \
-       $(UTILS_DIR)/string_utils.c
+	lexer/lexer_main.c lexer/lexer_split.c lexer/lexer_tokens.c lexer/lexer_utils.c \
+	parser/parser_main.c parser/parser_utils.c \
+	expander/expander_main.c \
+	executor/executor_main.c executor/executor_utils.c executor/executor_redirections.c executor/executor_pipeline.c executor/executor_single.c \
+	builtins/builtin_echo.c builtins/builtin_pwd.c builtins/builtin_env.c builtins/builtin_exit.c builtins/builtin_cd.c builtins/builtin_export.c builtins/builtin_unset.c \
+	utils/env_utils.c utils/node_utils.c utils/string_utils.c \
+	error/error_handler.c \
+	signals.c
 
 OBJS = $(SRCS:.c=.o)
 

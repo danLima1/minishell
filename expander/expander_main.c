@@ -73,10 +73,13 @@ char	*expand_string(char *str, t_env *env, int last_exit)
 			i++;
 			var_name = get_var_name(str, &i);
 			var_value = expand_variable(var_name, env, last_exit);
-			ft_strcpy(result + j, var_value);
-			j += ft_strlen(var_value);
+			if (var_value)
+			{
+				ft_strcpy(result + j, var_value);
+				j += ft_strlen(var_value);
+				free(var_value);
+			}
 			free(var_name);
-			free(var_value);
 		}
 		else
 			result[j++] = str[i++];

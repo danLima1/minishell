@@ -98,7 +98,7 @@ void		print_tokens(t_token *tokens);
 int			validate_tokens(t_token *tokens);
 
 /* Parser  */
-t_cmd		*parse_tokens(t_token *tokens);
+t_cmd		*parse_tokens(t_token *tokens, t_env *env, int last_exit);
 void		free_cmd_list(t_cmd *cmd_list);
 void		print_cmd_list(t_cmd *cmd_list);
 int			count_commands(t_cmd *cmd_list);
@@ -108,20 +108,30 @@ char		*expand_string(char *str, t_env *env, int last_exit);
 
 /* Executor  */
 int			execute_command(t_cmd *cmd, t_shell *shell);
+int			is_builtin(char *cmd);
+int			execute_builtin(char **args, t_shell *shell);
+int			execute_single_command(t_cmd *cmd, t_shell *shell);
+int			execute_pipeline(t_cmd *cmd_list, t_shell *shell);
+char		*find_executable(char *cmd, t_env *env);
+char		*get_path_env(t_env *env);
+int			handle_redirections(t_redir *redirs);
 
 /* Builtins  */
 int			builtin_echo(char **args);
 int			builtin_pwd(char **args);
 int			builtin_env(char **args, t_env *env);
 int			builtin_exit(char **args);
+int			builtin_cd(char **args, t_env *env);
+int			builtin_export(char **args, t_env **env);
+int			builtin_unset(char **args, t_env **env);
 
-/* Environment  */
+/* Env  */
 t_env		*init_env(char **envp);
 t_env		*create_env_node(char *key, char *value);
 void		add_env_node(t_env **env, t_env *new_node);
 void		free_env(t_env *env);
 
-/* Utils functions */
+/* Utils  */
 int			ft_strcmp(const char *s1, const char *s2);
 char		*ft_strncpy(char *dest, const char *src, size_t n);
 char		*ft_strcpy(char *dest, const char *src);
