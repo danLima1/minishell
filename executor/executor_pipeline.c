@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   executor_pipeline.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dde-lima <dde-lima@student.42.rio>         +#+  +:+       +#+        */
+/*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 17:44:52 by dde-lima          #+#    #+#             */
-/*   Updated: 2025/01/15 14:32:36 by dde-lima         ###   ########.fr       */
+/*   Updated: 2025/10/22 09:53:47 by ldos_sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,49 +46,20 @@ static void	execute_child_process(t_cmd *current, t_shell *shell)
 	}
 }
 
-static int	handle_parent_process(int prev_fd, int *pipe_fd, t_cmd *current)
-{
-	if (prev_fd != -1)
-		close(prev_fd);
-	if (current->next)
-		close(pipe_fd[1]);
-	return (0);
-}
-
-static int	handle_fork_process(t_cmd *current, t_shell *shell, int *pipe_fd, int prev_fd)
-{
-	pid_t	pid;
-
-	pid = fork();
-	if (pid == 0)
-	{
-		setup_child_pipes(prev_fd, pipe_fd, current);
-		execute_child_process(current, shell);
-	}
-	else if (pid > 0)
-		return (handle_parent_process(prev_fd, pipe_fd, current));
-	else
-	{
-		perror("fork");
-		return (1);
-	}
-	return (0);
-}
-
-static int	process_pipeline_command(t_cmd *current, t_shell *shell, int *prev_fd)
+static int	process_pipeline_command(t_cmd *crnt, t_shell *shell, int *prev_fd)
 {
 	int		pipe_fd[2];
 	int		old_prev_fd;
 
 	old_prev_fd = *prev_fd;
-	if (current->next && pipe(pipe_fd) == -1)
+	if (crnt->next && pipe(pipe_fd) == -1)
 	{
 		perror("pipe");
 		return (1);
 	}
-	if (current->next)
+	if (crnt->next)
 		*prev_fd = pipe_fd[0];
-	return (handle_fork_process(current, shell, pipe_fd, old_prev_fd));
+	return (handle_fork_process(crnt, shell, pipe_fd, old_prev_fd));
 }
 
 static int	wait_for_all_processes(t_cmd *cmd_list)

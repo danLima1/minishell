@@ -6,7 +6,7 @@
 /*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 08:18:07 by ldos_sa2          #+#    #+#             */
-/*   Updated: 2025/10/06 21:41:40 by ldos_sa2         ###   ########.fr       */
+/*   Updated: 2025/10/22 09:58:19 by ldos_sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,20 @@ typedef struct s_shell
 	int					stdout_backup;
 }	t_shell;
 
+typedef struct s_exp
+{
+	t_env				*env;
+	int					last_exit;
+	char				*result;
+}	t_exp;
+
+typedef struct s_indexes
+{
+	int					*i;
+	int					*j;
+}	t_indexes;
+
+
 /* Legacy precisa de refatoracao */
 char		**ms_split(const char *s);
 int			count_words(const char *s);
@@ -115,6 +129,8 @@ int			execute_pipeline(t_cmd *cmd_list, t_shell *shell);
 char		*find_executable(char *cmd, t_env *env);
 char		*get_path_env(t_env *env);
 int			handle_redirections(t_redir *redirs);
+int			handle_parent_process(int prev_fd, int *pp_fd, t_cmd *crnt);
+int			handle_fork_process(t_cmd *crnt, t_shell *shell, int *pp_fd, int prev_fd);
 
 /* Builtins  */
 int			builtin_echo(char **args);
