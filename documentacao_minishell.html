@@ -1,0 +1,1876 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentação Minishell - Análise Linha por Linha</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #569cd6;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            border-bottom: 2px solid #569cd6;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #4ec9b0;
+            margin: 30px 0 15px 0;
+            font-size: 1.8em;
+            border-left: 4px solid #4ec9b0;
+            padding-left: 15px;
+        }
+
+        h3 {
+            color: #dcdcaa;
+            margin: 20px 0 10px 0;
+            font-size: 1.4em;
+        }
+
+        .file-section {
+            background-color: #252526;
+            border-radius: 8px;
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #3c3c3c;
+        }
+
+        .code-block {
+            background-color: #1e1e1e;
+            border: 1px solid #3c3c3c;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .line-numbers {
+            color: #858585;
+            user-select: none;
+            margin-right: 15px;
+            display: inline-block;
+            width: 30px;
+            text-align: right;
+        }
+
+        .code-line {
+            display: block;
+            margin: 2px 0;
+        }
+
+        .keyword {
+            color: #569cd6;
+            font-weight: bold;
+        }
+
+        .string {
+            color: #ce9178;
+        }
+
+        .comment {
+            color: #6a9955;
+            font-style: italic;
+        }
+
+        .function {
+            color: #dcdcaa;
+        }
+
+        .type {
+            color: #4ec9b0;
+        }
+
+        .variable {
+            color: #9cdcfe;
+        }
+
+        .number {
+            color: #b5cea8;
+        }
+
+        .explanation {
+            background-color: #2d2d30;
+            border-left: 4px solid #007acc;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 0 5px 5px 0;
+        }
+
+        .explanation h4 {
+            color: #007acc;
+            margin-bottom: 10px;
+        }
+
+        .step-by-step {
+            background-color: #2d2d30;
+            border-left: 4px solid #f14c4c;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 0 5px 5px 0;
+        }
+
+        .step-by-step h4 {
+            color: #f14c4c;
+            margin-bottom: 10px;
+        }
+
+        .step-by-step ol {
+            margin-left: 20px;
+        }
+
+        .step-by-step li {
+            margin: 5px 0;
+        }
+
+        .navigation {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #252526;
+            border: 1px solid #3c3c3c;
+            border-radius: 5px;
+            padding: 15px;
+            max-width: 250px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .navigation h3 {
+            color: #569cd6;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .navigation ul {
+            list-style: none;
+        }
+
+        .navigation li {
+            margin: 5px 0;
+        }
+
+        .navigation a {
+            color: #9cdcfe;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+
+        .navigation a:hover {
+            color: #569cd6;
+            text-decoration: underline;
+        }
+
+        .toc {
+            background-color: #252526;
+            border: 1px solid #3c3c3c;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .toc h2 {
+            color: #569cd6;
+            margin-bottom: 15px;
+        }
+
+        .toc ul {
+            list-style: none;
+            margin-left: 20px;
+        }
+
+        .toc li {
+            margin: 8px 0;
+        }
+
+        .toc a {
+            color: #9cdcfe;
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            color: #569cd6;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .navigation {
+                position: static;
+                max-width: 100%;
+                margin-bottom: 20px;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navigation">
+        <h3>Navegação</h3>
+        <ul>
+            <li><a href="#main">main.c</a></li>
+            <li><a href="#signals">signals.c</a></li>
+            <li><a href="#env-utils">env_utils.c</a></li>
+            <li><a href="#node-utils">node_utils.c</a></li>
+            <li><a href="#parser-main">parser_main.c</a></li>
+            <li><a href="#parser-utils">parser_utils.c</a></li>
+            <li><a href="#lexer-main">lexer_main.c</a></li>
+            <li><a href="#lexer-split">lexer_split.c</a></li>
+            <li><a href="#lexer-utils">lexer_utils.c</a></li>
+            <li><a href="#expander">expander_main.c</a></li>
+            <li><a href="#executor-main">executor_main.c</a></li>
+            <li><a href="#executor-pipeline">executor_pipeline.c</a></li>
+            <li><a href="#executor-redirections">executor_redirections.c</a></li>
+            <li><a href="#executor-utils">executor_utils.c</a></li>
+            <li><a href="#executor-single">executor_single.c</a></li>
+            <li><a href="#builtin-echo">builtin_echo.c</a></li>
+            <li><a href="#builtin-cd">builtin_cd.c</a></li>
+            <li><a href="#builtin-env">builtin_env.c</a></li>
+            <li><a href="#builtin-export">builtin_export.c</a></li>
+            <li><a href="#builtin-exit">builtin_exit.c</a></li>
+            <li><a href="#builtin-pwd">builtin_pwd.c</a></li>
+            <li><a href="#builtin-unset">builtin_unset.c</a></li>
+            <li><a href="#error-handler">error_handler.c</a></li>
+        </ul>
+    </div>
+
+    <div class="container">
+        <h1>📚 Documentação Completa do Minishell</h1>
+        
+        <div class="toc">
+            <h2>Índice</h2>
+            <ul>
+                <li><a href="#overview">Visão Geral do Projeto</a></li>
+                <li><a href="#main">1. Arquivo Principal (main.c)</a></li>
+                <li><a href="#signals">2. Gerenciamento de Sinais (signals.c)</a></li>
+                <li><a href="#env-utils">3. Utilitários de Ambiente (env_utils.c)</a></li>
+                <li><a href="#node-utils">4. Utilitários de Nós (node_utils.c)</a></li>
+                <li><a href="#parser-main">5. Parser Principal (parser_main.c)</a></li>
+                <li><a href="#parser-utils">6. Utilitários do Parser (parser_utils.c)</a></li>
+                <li><a href="#lexer-main">7. Lexer Principal (lexer_main.c)</a></li>
+                <li><a href="#lexer-split">8. Divisão Lexical (lexer_split.c)</a></li>
+                <li><a href="#lexer-utils">9. Utilitários do Lexer (lexer_utils.c)</a></li>
+                <li><a href="#expander">10. Expansor de Variáveis (expander_main.c)</a></li>
+                <li><a href="#executor-main">11. Executor Principal (executor_main.c)</a></li>
+                <li><a href="#executor-pipeline">12. Executor de Pipelines (executor_pipeline.c)</a></li>
+                <li><a href="#executor-redirections">13. Executor de Redirecionamentos (executor_redirections.c)</a></li>
+                <li><a href="#executor-utils">14. Utilitários do Executor (executor_utils.c)</a></li>
+                <li><a href="#executor-single">15. Executor de Comando Único (executor_single.c)</a></li>
+                <li><a href="#builtin-echo">16. Builtin Echo (builtin_echo.c)</a></li>
+                <li><a href="#builtin-cd">17. Builtin CD (builtin_cd.c)</a></li>
+                <li><a href="#builtin-env">18. Builtin Env (builtin_env.c)</a></li>
+                <li><a href="#builtin-export">19. Builtin Export (builtin_export.c)</a></li>
+                <li><a href="#builtin-exit">20. Builtin Exit (builtin_exit.c)</a></li>
+                <li><a href="#builtin-pwd">21. Builtin PWD (builtin_pwd.c)</a></li>
+                <li><a href="#builtin-unset">22. Builtin Unset (builtin_unset.c)</a></li>
+                <li><a href="#error-handler">23. Tratamento de Erros (error_handler.c)</a></li>
+            </ul>
+        </div>
+
+        <div id="overview" class="file-section">
+            <h2>🎯 Visão Geral do Projeto</h2>
+            <div class="explanation">
+                <h4>O que é o Minishell?</h4>
+                <p>O Minishell é uma implementação simplificada de um shell Unix, similar ao bash. Ele processa comandos do usuário, gerencia variáveis de ambiente, executa programas e implementa funcionalidades básicas de um terminal.</p>
+                
+                <h4>Arquitetura do Sistema:</h4>
+                <ul>
+                    <li><strong>Lexer:</strong> Analisa e divide a entrada em tokens</li>
+                    <li><strong>Parser:</strong> Converte tokens em estruturas de comando</li>
+                    <li><strong>Expander:</strong> Expande variáveis de ambiente</li>
+                    <li><strong>Executor:</strong> Executa os comandos processados</li>
+                    <li><strong>Builtins:</strong> Implementa comandos internos do shell</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- MAIN.C -->
+        <div id="main" class="file-section">
+            <h2>1. 📄 main.c - Arquivo Principal</h2>
+            
+            <h3>🔍 Análise Linha por Linha</h3>
+            
+            <div class="code-block">
+<span class="line-numbers">1</span><span class="code-line"><span class="comment">/* ************************************************************************** */</span></span>
+<span class="line-numbers">2</span><span class="code-line"><span class="comment">/*                                                                            */</span></span>
+<span class="line-numbers">3</span><span class="code-line"><span class="comment">/*                                                        :::      ::::::::   */</span></span>
+<span class="line-numbers">4</span><span class="code-line"><span class="comment">/*   main.c                                             :+:      :+:    :+:   */</span></span>
+<span class="line-numbers">5</span><span class="code-line"><span class="comment">/*                                                    +:+ +:+         +:+     */</span></span>
+<span class="line-numbers">6</span><span class="code-line"><span class="comment">/*   By: ldos_sa2 &lt;ldos-sa2@student.42.rio&gt;         +#+  +:+       +#+        */</span></span>
+<span class="line-numbers">7</span><span class="code-line"><span class="comment">/*                                                +#+#+#+#+#+   +#+           */</span></span>
+<span class="line-numbers">8</span><span class="code-line"><span class="comment">/*   Created: 2025/08/26 08:18:07 by ldos_sa2          #+#    #+#             */</span></span>
+<span class="line-numbers">9</span><span class="code-line"><span class="comment">/*   Updated: 2025/10/06 21:50:44 by ldos_sa2         ###   ########.fr       */</span></span>
+<span class="line-numbers">10</span><span class="code-line"><span class="comment">/*                                                                            */</span></span>
+<span class="line-numbers">11</span><span class="code-line"><span class="comment">/* ************************************************************************** */</span></span>
+<span class="line-numbers">12</span><span class="code-line"></span>
+<span class="line-numbers">13</span><span class="code-line"><span class="keyword">#include</span> <span class="string">"minishell.h"</span></span>
+<span class="line-numbers">14</span><span class="code-line"></span>
+<span class="line-numbers">15</span><span class="code-line"><span class="type">int</span> <span class="variable">g_signal_received</span> = <span class="number">0</span>;</span>
+            </div>
+
+            <div class="explanation">
+                <h4>📋 Cabeçalho e Inclusões (Linhas 1-15)</h4>
+                <p><strong>Linha 13:</strong> Inclui o arquivo de cabeçalho principal que contém todas as definições de estruturas, protótipos de funções e macros necessárias.</p>
+                <p><strong>Linha 15:</strong> Declara uma variável global para capturar sinais recebidos (como Ctrl+C). É inicializada com 0 e será modificada pelos handlers de sinal.</p>
+            </div>
+
+            <div class="code-block">
+<span class="line-numbers">17</span><span class="code-line"><span class="keyword">static</span> <span class="type">void</span> <span class="function">process_input</span>(<span class="type">char</span> *<span class="variable">input</span>, <span class="type">t_shell</span> *<span class="variable">shell</span>)</span>
+<span class="line-numbers">18</span><span class="code-line">{</span>
+<span class="line-numbers">19</span><span class="code-line">    <span class="type">t_token</span> *<span class="variable">tokens</span>;</span>
+<span class="line-numbers">20</span><span class="code-line">    <span class="type">t_cmd</span> *<span class="variable">commands</span>;</span>
+<span class="line-numbers">21</span><span class="code-line"></span>
+<span class="line-numbers">22</span><span class="code-line">    <span class="variable">tokens</span> = <span class="function">lexer_tokenize</span>(<span class="variable">input</span>);</span>
+<span class="line-numbers">23</span><span class="code-line">    <span class="keyword">if</span> (<span class="variable">tokens</span> && <span class="function">validate_tokens</span>(<span class="variable">tokens</span>))</span>
+<span class="line-numbers">24</span><span class="code-line">    {</span>
+<span class="line-numbers">25</span><span class="code-line">        <span class="variable">commands</span> = <span class="function">parse_tokens</span>(<span class="variable">tokens</span>, <span class="variable">shell</span>-><span class="variable">env</span>, <span class="variable">shell</span>-><span class="variable">exit_status</span>);</span>
+<span class="line-numbers">26</span><span class="code-line">        <span class="keyword">if</span> (<span class="variable">commands</span>)</span>
+<span class="line-numbers">27</span><span class="code-line">        {</span>
+<span class="line-numbers">28</span><span class="code-line">            <span class="variable">shell</span>-><span class="variable">exit_status</span> = <span class="function">execute_command</span>(<span class="variable">commands</span>, <span class="variable">shell</span>);</span>
+<span class="line-numbers">29</span><span class="code-line">            <span class="function">free_cmd_list</span>(<span class="variable">commands</span>);</span>
+<span class="line-numbers">30</span><span class="code-line">        }</span>
+<span class="line-numbers">31</span><span class="code-line">    }</span>
+<span class="line-numbers">32</span><span class="code-line">    <span class="function">free_nodelist</span>(<span class="variable">tokens</span>);</span>
+<span class="line-numbers">33</span><span class="code-line">}</span>
+            </div>
+
+            <div class="explanation">
+                <h4>⚙️ Função process_input (Linhas 17-33)</h4>
+                <p>Esta função é o coração do processamento de comandos no minishell.</p>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔄 Passo a Passo da Execução:</h4>
+                <ol>
+                    <li><strong>Linha 19-20:</strong> Declara ponteiros para tokens e comandos</li>
+                    <li><strong>Linha 22:</strong> Chama o lexer para dividir a entrada em tokens</li>
+                    <li><strong>Linha 23:</strong> Verifica se os tokens são válidos (sintaxe correta)</li>
+                    <li><strong>Linha 25:</strong> Converte tokens em estruturas de comando</li>
+                    <li><strong>Linha 28:</strong> Executa os comandos e armazena o status de saída</li>
+                    <li><strong>Linha 29:</strong> Libera a memória dos comandos</li>
+                    <li><strong>Linha 32:</strong> Libera a memória dos tokens</li>
+                </ol>
+            </div>
+
+            <div class="code-block">
+<span class="line-numbers">35</span><span class="code-line"><span class="type">int</span> <span class="function">main</span>(<span class="type">int</span> <span class="variable">argc</span>, <span class="type">char</span> **<span class="variable">argv</span>, <span class="type">char</span> **<span class="variable">envp</span>)</span>
+<span class="line-numbers">36</span><span class="code-line">{</span>
+<span class="line-numbers">37</span><span class="code-line">    <span class="type">t_shell</span> <span class="variable">shell</span>;</span>
+<span class="line-numbers">38</span><span class="code-line">    <span class="type">char</span> *<span class="variable">input</span>;</span>
+<span class="line-numbers">39</span><span class="code-line"></span>
+<span class="line-numbers">40</span><span class="code-line">    (<span class="type">void</span>)<span class="variable">argc</span>;</span>
+<span class="line-numbers">41</span><span class="code-line">    (<span class="type">void</span>)<span class="variable">argv</span>;</span>
+<span class="line-numbers">42</span><span class="code-line">    <span class="variable">shell</span>.<span class="variable">env</span> = <span class="function">init_env</span>(<span class="variable">envp</span>);</span>
+<span class="line-numbers">43</span><span class="code-line">    <span class="variable">shell</span>.<span class="variable">exit_status</span> = <span class="number">0</span>;</span>
+<span class="line-numbers">44</span><span class="code-line">    <span class="function">signals_init</span>();</span>
+<span class="line-numbers">45</span><span class="code-line">    <span class="keyword">while</span> (<span class="number">1</span>)</span>
+<span class="line-numbers">46</span><span class="code-line">    {</span>
+<span class="line-numbers">47</span><span class="code-line">        <span class="variable">g_signal_received</span> = <span class="number">0</span>;</span>
+<span class="line-numbers">48</span><span class="code-line">        <span class="variable">input</span> = <span class="function">readline</span>(<span class="string">"minishell$ "</span>);</span>
+<span class="line-numbers">49</span><span class="code-line">        <span class="keyword">if</span> (!<span class="variable">input</span>)</span>
+<span class="line-numbers">50</span><span class="code-line">        {</span>
+<span class="line-numbers">51</span><span class="code-line">            <span class="function">printf</span>(<span class="string">"exit\n"</span>);</span>
+<span class="line-numbers">52</span><span class="code-line">            <span class="keyword">break</span>;</span>
+<span class="line-numbers">53</span><span class="code-line">        }</span>
+<span class="line-numbers">54</span><span class="code-line">        <span class="keyword">if</span> (*<span class="variable">input</span>)</span>
+<span class="line-numbers">55</span><span class="code-line">            <span class="function">add_history</span>(<span class="variable">input</span>);</span>
+<span class="line-numbers">56</span><span class="code-line">        <span class="function">process_input</span>(<span class="variable">input</span>, &<span class="variable">shell</span>);</span>
+<span class="line-numbers">57</span><span class="code-line">        <span class="function">free</span>(<span class="variable">input</span>);</span>
+<span class="line-numbers">58</span><span class="code-line">    }</span>
+<span class="line-numbers">59</span><span class="code-line">    <span class="function">free_env</span>(<span class="variable">shell</span>.<span class="variable">env</span>);</span>
+<span class="line-numbers">60</span><span class="code-line">    <span class="keyword">return</span> (<span class="variable">shell</span>.<span class="variable">exit_status</span>);</span>
+<span class="line-numbers">61</span><span class="code-line">}</span>
+            </div>
+
+            <div class="explanation">
+                <h4>🚀 Função main (Linhas 35-61)</h4>
+                <p>A função principal que inicializa o shell e mantém o loop principal de execução.</p>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔄 Passo a Passo da Função main:</h4>
+                <ol>
+                    <li><strong>Linha 37-38:</strong> Declara variáveis para o shell e entrada do usuário</li>
+                    <li><strong>Linha 40-41:</strong> Marca argc e argv como não utilizados (evita warnings)</li>
+                    <li><strong>Linha 42:</strong> Inicializa as variáveis de ambiente do shell</li>
+                    <li><strong>Linha 43:</strong> Define o status de saída inicial como 0 (sucesso)</li>
+                    <li><strong>Linha 44:</strong> Configura os handlers de sinais (Ctrl+C, etc.)</li>
+                    <li><strong>Linha 45:</strong> Inicia o loop infinito do shell</li>
+                    <li><strong>Linha 47:</strong> Reseta a flag de sinal recebido</li>
+                    <li><strong>Linha 48:</strong> Lê entrada do usuário com prompt "minishell$ "</li>
+                    <li><strong>Linha 49-53:</strong> Se input é NULL (Ctrl+D), sai do programa</li>
+                    <li><strong>Linha 54-55:</strong> Se há entrada, adiciona ao histórico</li>
+                    <li><strong>Linha 56:</strong> Processa a entrada do usuário</li>
+                    <li><strong>Linha 57:</strong> Libera a memória da entrada</li>
+                    <li><strong>Linha 59:</strong> Libera as variáveis de ambiente antes de sair</li>
+                    <li><strong>Linha 60:</strong> Retorna o status de saída do shell</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- SIGNALS.C -->
+        <div id="signals" class="file-section">
+            <h2>2. 📡 signals.c - Gerenciamento de Sinais</h2>
+            
+            <div class="code-block">
+<span class="line-numbers">13</span><span class="code-line"><span class="keyword">#include</span> <span class="string">"minishell.h"</span></span>
+<span class="line-numbers">14</span><span class="code-line"></span>
+<span class="line-numbers">15</span><span class="code-line"><span class="type">void</span> <span class="function">signals_handle_sigint</span>(<span class="type">int</span> <span class="variable">sig</span>)</span>
+<span class="line-numbers">16</span><span class="code-line">{</span>
+<span class="line-numbers">17</span><span class="code-line">    (<span class="type">void</span>)<span class="variable">sig</span>;</span>
+<span class="line-numbers">18</span><span class="code-line">    <span class="variable">g_signal_received</span> = <span class="variable">SIGINT</span>;</span>
+<span class="line-numbers">19</span><span class="code-line">    <span class="function">printf</span>(<span class="string">"\n"</span>);</span>
+<span class="line-numbers">20</span><span class="code-line">    <span class="function">rl_on_new_line</span>();</span>
+<span class="line-numbers">21</span><span class="code-line">    <span class="function">rl_replace_line</span>(<span class="string">""</span>, <span class="number">0</span>);</span>
+<span class="line-numbers">22</span><span class="code-line">    <span class="function">rl_redisplay</span>();</span>
+<span class="line-numbers">23</span><span class="code-line">}</span>
+            </div>
+
+            <div class="explanation">
+                <h4>⚡ Handler SIGINT (Linhas 15-23)</h4>
+                <p>Gerencia o sinal SIGINT (Ctrl+C) para interromper comandos sem fechar o shell.</p>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔄 Passo a Passo do Handler SIGINT:</h4>
+                <ol>
+                    <li><strong>Linha 17:</strong> Marca o parâmetro sig como não utilizado</li>
+                    <li><strong>Linha 18:</strong> Define a variável global indicando que SIGINT foi recebido</li>
+                    <li><strong>Linha 19:</strong> Imprime uma nova linha para limpar a saída</li>
+                    <li><strong>Linha 20:</strong> Informa ao readline que está em uma nova linha</li>
+                    <li><strong>Linha 21:</strong> Limpa a linha atual do readline</li>
+                    <li><strong>Linha 22:</strong> Redesenha o prompt na tela</li>
+                </ol>
+            </div>
+
+            <div class="code-block">
+<span class="line-numbers">25</span><span class="code-line"><span class="type">void</span> <span class="function">signals_handle_sigquit</span>(<span class="type">int</span> <span class="variable">sig</span>)</span>
+<span class="line-numbers">26</span><span class="code-line">{</span>
+<span class="line-numbers">27</span><span class="code-line">    (<span class="type">void</span>)<span class="variable">sig</span>;</span>
+<span class="line-numbers">28</span><span class="code-line"></span>
+<span class="line-numbers">29</span><span class="code-line">}</span>
+            </div>
+
+            <div class="explanation">
+                <h4>🚫 Handler SIGQUIT (Linhas 25-29)</h4>
+                <p>Handler vazio para SIGQUIT (Ctrl+\). No shell interativo, este sinal é ignorado.</p>
+            </div>
+
+            <div class="code-block">
+<span class="line-numbers">31</span><span class="code-line"><span class="type">void</span> <span class="function">signals_init</span>(<span class="type">void</span>)</span>
+<span class="line-numbers">32</span><span class="code-line">{</span>
+<span class="line-numbers">33</span><span class="code-line">    <span class="function">signal</span>(<span class="variable">SIGINT</span>, <span class="function">signals_handle_sigint</span>);</span>
+<span class="line-numbers">34</span><span class="code-line">    <span class="function">signal</span>(<span class="variable">SIGQUIT</span>, <span class="function">signals_handle_sigquit</span>);</span>
+<span class="line-numbers">35</span><span class="code-line">}</span>
+            </div>
+
+            <div class="explanation">
+                <h4>🔧 Inicialização de Sinais (Linhas 31-35)</h4>
+                <p>Configura os handlers para os sinais SIGINT e SIGQUIT.</p>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔄 Passo a Passo da Inicialização:</h4>
+                <ol>
+                    <li><strong>Linha 33:</strong> Associa SIGINT ao handler personalizado</li>
+                    <li><strong>Linha 34:</strong> Associa SIGQUIT ao handler vazio (ignora)</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- ENV_UTILS.C -->
+        <div id="env-utils" class="file-section">
+            <h2>3. 🌍 env_utils.c - Utilitários de Ambiente</h2>
+            
+            <div class="code-block">
+<span class="line-numbers">15</span><span class="code-line"><span class="type">t_env</span> *<span class="function">create_env_node</span>(<span class="type">char</span> *<span class="variable">key</span>, <span class="type">char</span> *<span class="variable">value</span>)</span>
+<span class="line-numbers">16</span><span class="code-line">{</span>
+<span class="line-numbers">17</span><span class="code-line">    <span class="type">t_env</span> *<span class="variable">node</span>;</span>
+<span class="line-numbers">18</span><span class="code-line"></span>
+<span class="line-numbers">19</span><span class="code-line">    <span class="variable">node</span> = <span class="function">malloc</span>(<span class="keyword">sizeof</span>(<span class="type">t_env</span>));</span>
+<span class="line-numbers">20</span><span class="code-line">    <span class="keyword">if</span> (!<span class="variable">node</span>)</span>
+<span class="line-numbers">21</span><span class="code-line">        <span class="keyword">return</span> (<span class="variable">NULL</span>);</span>
+<span class="line-numbers">22</span><span class="code-line">    <span class="variable">node</span>-><span class="variable">key</span> = <span class="function">ft_strdup</span>(<span class="variable">key</span>);</span>
+<span class="line-numbers">23</span><span class="code-line">    <span class="variable">node</span>-><span class="variable">value</span> = <span class="function">ft_strdup</span>(<span class="variable">value</span>);</span>
+<span class="line-numbers">24</span><span class="code-line">    <span class="variable">node</span>-><span class="variable">next</span> = <span class="variable">NULL</span>;</span>
+<span class="line-numbers">25</span><span class="code-line">    <span class="keyword">return</span> (<span class="variable">node</span>);</span>
+<span class="line-numbers">26</span><span class="code-line">}</span>
+            </div>
+
+            <div class="explanation">
+                <h4>🏗️ Criação de Nó de Ambiente (Linhas 15-26)</h4>
+                <p>Cria um novo nó para armazenar uma variável de ambiente (chave=valor).</p>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔄 Passo a Passo da Criação:</h4>
+                <ol>
+                    <li><strong>Linha 19:</strong> Aloca memória para o nó</li>
+                    <li><strong>Linha 20-21:</strong> Verifica se a alocação foi bem-sucedida</li>
+                    <li><strong>Linha 22:</strong> Copia a chave (nome da variável)</li>
+                    <li><strong>Linha 23:</strong> Copia o valor da variável</li>
+                    <li><strong>Linha 24:</strong> Inicializa o ponteiro next como NULL</li>
+                    <li><strong>Linha 25:</strong> Retorna o nó criado</li>
+                </ol>
+            </div>
+
+            <div class="code-block">
+<span class="line-numbers">28</span><span class="code-line"><span class="type">void</span> <span class="function">add_env_node</span>(<span class="type">t_env</span> **<span class="variable">env</span>, <span class="type">t_env</span> *<span class="variable">new_node</span>)</span>
+<span class="line-numbers">29</span><span class="code-line">{</span>
+<span class="line-numbers">30</span><span class="code-line">    <span class="type">t_env</span> *<span class="variable">current</span>;</span>
+<span class="line-numbers">31</span><span class="code-line"></span>
+<span class="line-numbers">32</span><span class="code-line">    <span class="keyword">if</span> (!<span class="variable">env</span> || !<span class="variable">new_node</span>)</span>
+<span class="line-numbers">33</span><span class="code-line">        <span class="keyword">return</span>;</span>
+<span class="line-numbers">34</span><span class="code-line">    <span class="keyword">if</span> (!*<span class="variable">env</span>)</span>
+<span class="line-numbers">35</span><span class="code-line">    {</span>
+<span class="line-numbers">36</span><span class="code-line">        *<span class="variable">env</span> = <span class="variable">new_node</span>;</span>
+<span class="line-numbers">37</span><span class="code-line">        <span class="keyword">return</span>;</span>
+<span class="line-numbers">38</span><span class="code-line">    }</span>
+<span class="line-numbers">39</span><span class="code-line">    <span class="variable">current</span> = *<span class="variable">env</span>;</span>
+<span class="line-numbers">40</span><span class="code-line">    <span class="keyword">while</span> (<span class="variable">current</span>-><span class="variable">next</span>)</span>
+<span class="line-numbers">41</span><span class="code-line">        <span class="variable">current</span> = <span class="variable">current</span>-><span class="variable">next</span>;</span>
+<span class="line-numbers">42</span><span class="code-line">    <span class="variable">current</span>-><span class="variable">next</span> = <span class="variable">new_node</span>;</span>
+<span class="line-numbers">43</span><span class="code-line">}</span>
+            </div>
+
+            <div class="explanation">
+                <h4>➕ Adição de Nó (Linhas 28-43)</h4>
+                <p>Adiciona um novo nó ao final da lista de variáveis de ambiente.</p>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔄 Passo a Passo da Adição:</h4>
+                <ol>
+                    <li><strong>Linha 32-33:</strong> Verifica se os parâmetros são válidos</li>
+                    <li><strong>Linha 34-38:</strong> Se a lista está vazia, o novo nó se torna o primeiro</li>
+                    <li><strong>Linha 39:</strong> Inicia a busca pelo último nó</li>
+                    <li><strong>Linha 40-41:</strong> Percorre até o último nó</li>
+                    <li><strong>Linha 42:</strong> Liga o novo nó ao final da lista</li>
+                </ol>
+            </div>
+
+            <div class="code-block">
+<span class="line-numbers">45</span><span class="code-line"><span class="type">t_env</span> *<span class="function">init_env</span>(<span class="type">char</span> **<span class="variable">envp</span>)</span>
+<span class="line-numbers">46</span><span class="code-line">{</span>
+<span class="line-numbers">47</span><span class="code-line">    <span class="type">t_env</span> *<span class="variable">env</span>;</span>
+<span class="line-numbers">48</span><span class="code-line">    <span class="type">t_env</span> *<span class="variable">node</span>;</span>
+<span class="line-numbers">49</span><span class="code-line">    <span class="type">char</span> *<span class="variable">equal_pos</span>;</span>
+<span class="line-numbers">50</span><span class="code-line">    <span class="type">int</span> <span class="variable">i</span>;</span>
+<span class="line-numbers">51</span><span class="code-line"></span>
+<span class="line-numbers">52</span><span class="code-line">    <span class="variable">env</span> = <span class="variable">NULL</span>;</span>
+<span class="line-numbers">53</span><span class="code-line">    <span class="variable">i</span> = <span class="number">0</span>;</span>
+<span class="line-numbers">54</span><span class="code-line">    <span class="keyword">while</span> (<span class="variable">envp</span>[<span class="variable">i</span>])</span>
+<span class="line-numbers">55</span><span class="code-line">    {</span>
+<span class="line-numbers">56</span><span class="code-line">        <span class="variable">equal_pos</span> = <span class="function">ft_strchr</span>(<span class="variable">envp</span>[<span class="variable">i</span>], <span class="string">'='</span>);</span>
+<span class="line-numbers">57</span><span class="code-line">        <span class="keyword">if</span> (<span class="variable">equal_pos</span>)</span>
+<span class="line-numbers">58</span><span class="code-line">        {</span>
+<span class="line-numbers">59</span><span class="code-line">            *<span class="variable">equal_pos</span> = <span class="string">'\0'</span>;</span>
+<span class="line-numbers">60</span><span class="code-line">            <span class="variable">node</span> = <span class="function">create_env_node</span>(<span class="variable">envp</span>[<span class="variable">i</span>], <span class="variable">equal_pos</span> + <span class="number">1</span>);</span>
+<span class="line-numbers">61</span><span class="code-line">            *<span class="variable">equal_pos</span> = <span class="string">'='</span>;</span>
+<span class="line-numbers">62</span><span class="code-line">            <span class="function">add_env_node</span>(&<span class="variable">env</span>, <span class="variable">node</span>);</span>
+<span class="line-numbers">63</span><span class="code-line">        }</span>
+<span class="line-numbers">64</span><span class="code-line">        <span class="variable">i</span>++;</span>
+<span class="line-numbers">65</span><span class="code-line">    }</span>
+<span class="line-numbers">66</span><span class="code-line">    <span class="keyword">return</span> (<span class="variable">env</span>);</span>
+<span class="line-numbers">67</span><span class="code-line">}</span>
+            </div>
+
+            <div class="explanation">
+                <h4>🚀 Inicialização do Ambiente (Linhas 45-67)</h4>
+                <p>Converte o array de strings do ambiente do sistema em uma lista ligada.</p>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔄 Passo a Passo da Inicialização:</h4>
+                <ol>
+                    <li><strong>Linha 52-53:</strong> Inicializa variáveis</li>
+                    <li><strong>Linha 54:</strong> Percorre todas as variáveis de ambiente</li>
+                    <li><strong>Linha 56:</strong> Encontra o sinal '=' que separa chave e valor</li>
+                    <li><strong>Linha 59:</strong> Substitui '=' por '\0' para separar a string</li>
+                    <li><strong>Linha 60:</strong> Cria um nó com a chave e valor</li>
+                    <li><strong>Linha 61:</strong> Restaura o '=' original</li>
+                    <li><strong>Linha 62:</strong> Adiciona o nó à lista</li>
+                    <li><strong>Linha 66:</strong> Retorna a lista de ambiente criada</li>
+                </ol>
+            </div>
+
+            <div class="code-block">
+<span class="line-numbers">69</span><span class="code-line"><span class="type">void</span> <span class="function">free_env</span>(<span class="type">t_env</span> *<span class="variable">env</span>)</span>
+<span class="line-numbers">70</span><span class="code-line">{</span>
+<span class="line-numbers">71</span><span class="code-line">    <span class="type">t_env</span> *<span class="variable">tmp</span>;</span>
+<span class="line-numbers">72</span><span class="code-line"></span>
+<span class="line-numbers">73</span><span class="code-line">    <span class="keyword">while</span> (<span class="variable">env</span>)</span>
+<span class="line-numbers">74</span><span class="code-line">    {</span>
+<span class="line-numbers">75</span><span class="code-line">        <span class="variable">tmp</span> = <span class="variable">env</span>-><span class="variable">next</span>;</span>
+<span class="line-numbers">76</span><span class="code-line">        <span class="function">free</span>(<span class="variable">env</span>-><span class="variable">key</span>);</span>
+<span class="line-numbers">77</span><span class="code-line">        <span class="function">free</span>(<span class="variable">env</span>-><span class="variable">value</span>);</span>
+<span class="line-numbers">78</span><span class="code-line">        <span class="function">free</span>(<span class="variable">env</span>);</span>
+<span class="line-numbers">79</span><span class="code-line">        <span class="variable">env</span> = <span class="variable">tmp</span>;</span>
+<span class="line-numbers">80</span><span class="code-line">    }</span>
+<span class="line-numbers">81</span><span class="code-line">}</span>
+            </div>
+
+            <div class="explanation">
+                <h4>🗑️ Liberação de Memória (Linhas 69-81)</h4>
+                <p>Libera toda a memória alocada para a lista de variáveis de ambiente.</p>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔄 Passo a Passo da Liberação:</h4>
+                <ol>
+                    <li><strong>Linha 73:</strong> Percorre todos os nós da lista</li>
+                    <li><strong>Linha 75:</strong> Salva o próximo nó antes de liberar o atual</li>
+                    <li><strong>Linha 76:</strong> Libera a memória da chave</li>
+                    <li><strong>Linha 77:</strong> Libera a memória do valor</li>
+                    <li><strong>Linha 78:</strong> Libera a memória do nó</li>
+                    <li><strong>Linha 79:</strong> Move para o próximo nó</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- NODE_UTILS.C -->
+        <div id="node-utils" class="file-section">
+            <h2>4. 🔗 node_utils.c - Utilitários de Nós</h2>
+            
+            <div class="code-block">
+<span class="line-numbers">15</span><span class="code-line"><span class="type">t_token</span> *<span class="function">newnode</span>(<span class="type">char</span> *<span class="variable">v</span>, <span class="type">t_token_type</span> <span class="variable">type</span>)</span>
+<span class="line-numbers">16</span><span class="code-line">{</span>
+<span class="line-numbers">17</span><span class="code-line">    <span class="type">t_token</span> *<span class="variable">new_node</span>;</span>
+<span class="line-numbers">18</span><span class="code-line">    <span class="type">char</span> *<span class="variable">value</span>;</span>
+<span class="line-numbers">19</span><span class="code-line"></span>
+<span class="line-numbers">20</span><span class="code-line">    <span class="variable">value</span> = <span class="function">ft_strdup</span>(<span class="variable">v</span>);</span>
+<span class="line-numbers">21</span><span class="code-line">    <span class="variable">new_node</span> = (<span class="type">t_token</span> *)<span class="function">malloc</span>(<span class="keyword">sizeof</span>(<span class="type">t_token</span>));</span>
+<span class="line-numbers">22</span><span class="code-line">    <span class="keyword">if</span> (!<span class="variable">new_node</span>)</span>
+<span class="line-numbers">23</span><span class="code-line">        <span class="keyword">return</span> (<span class="variable">NULL</span>);</span>
+<span class="line-numbers">24</span><span class="code-line">    <span class="variable">new_node</span>-><span class="variable">value</span> = <span class="variable">value</span>;</span>
+<span class="line-numbers">25</span><span class="code-line">    <span class="variable">new_node</span>-><span class="variable">type</span> = <span class="variable">type</span>;</span>
+<span class="line-numbers">26</span><span class="code-line">    <span class="variable">new_node</span>-><span class="variable">next</span> = <span class="variable">NULL</span>;</span>
+<span class="line-numbers">27</span><span class="code-line">    <span class="keyword">return</span> (<span class="variable">new_node</span>);</span>
+<span class="line-numbers">28</span><span class="code-line">}</span>
+            </div>
+
+            <div class="explanation">
+                <h4>🆕 Criação de Token (Linhas 15-28)</h4>
+                <p>Cria um novo nó de token para a lista ligada de tokens do lexer.</p>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔄 Passo a Passo da Criação de Token:</h4>
+                <ol>
+                    <li><strong>Linha 20:</strong> Duplica o valor da string para evitar problemas de memória</li>
+                    <li><strong>Linha 21:</strong> Aloca memória para o novo token</li>
+                    <li><strong>Linha 22-23:</strong> Verifica se a alocação foi bem-sucedida</li>
+                    <li><strong>Linha 24:</strong> Atribui o valor duplicado ao token</li>
+                    <li><strong>Linha 25:</strong> Define o tipo do token (WORD, PIPE, REDIRECT, etc.)</li>
+                    <li><strong>Linha 26:</strong> Inicializa o ponteiro next como NULL</li>
+                    <li><strong>Linha 27:</strong> Retorna o novo token criado</li>
+                </ol>
+            </div>
+
+            <div class="code-block">
+<span class="line-numbers">30</span><span class="code-line"><span class="type">t_token</span> *<span class="function">node_last</span>(<span class="type">t_token</span> *<span class="variable">node</span>)</span>
+<span class="line-numbers">31</span><span class="code-line">{</span>
+<span class="line-numbers">32</span><span class="code-line">    <span class="type">t_token</span> *<span class="variable">temp</span>;</span>
+<span class="line-numbers">33</span><span class="code-line"></span>
+<span class="line-numbers">34</span><span class="code-line">    <span class="keyword">if</span> (!<span class="variable">node</span>)</span>
+<span class="line-numbers">35</span><span class="code-line">        <span class="keyword">return</span> (<span class="variable">NULL</span>);</span>
+<span class="line-numbers">36</span><span class="code-line">    <span class="variable">temp</span> = <span class="variable">node</span>;</span>
+<span class="line-numbers">37</span><span class="code-line">    <span class="keyword">while</span> (<span class="variable">temp</span>-><span class="variable">next</span> != <span class="variable">NULL</span>)</span>
+<span class="line-numbers">38</span><span class="code-line">        <span class="variable">temp</span> = <span class="variable">temp</span>-><span class="variable">next</span>;</span>
+<span class="line-numbers">39</span><span class="code-line">    <span class="keyword">return</span> (<span class="variable">temp</span>);</span>
+<span class="line-numbers">40</span><span class="code-line">}</span>
+            </div>
+
+            <div class="explanation">
+                <h4>🔍 Busca do Último Nó (Linhas 30-40)</h4>
+                <p>Encontra e retorna o último nó da lista ligada de tokens.</p>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔄 Passo a Passo da Busca:</h4>
+                <ol>
+                    <li><strong>Linha 34-35:</strong> Verifica se a lista não está vazia</li>
+                    <li><strong>Linha 36:</strong> Inicia a busca a partir do primeiro nó</li>
+                    <li><strong>Linha 37-38:</strong> Percorre a lista até encontrar o último nó</li>
+                    <li><strong>Linha 39:</strong> Retorna o último nó encontrado</li>
+                </ol>
+            </div>
+
+            <div class="code-block">
+<span class="line-numbers">42</span><span class="code-line"><span class="type">void</span> <span class="function">nodeadd_back</span>(<span class="type">t_token</span> **<span class="variable">lst</span>, <span class="type">t_token</span> *<span class="variable">new</span>)</span>
+<span class="line-numbers">43</span><span class="code-line">{</span>
+<span class="line-numbers">44</span><span class="code-line">    <span class="keyword">if</span> (!<span class="variable">lst</span> || !<span class="variable">new</span>)</span>
+<span class="line-numbers">45</span><span class="code-line">        <span class="keyword">return</span>;</span>
+<span class="line-numbers">46</span><span class="code-line">    <span class="keyword">if</span> (*<span class="variable">lst</span>)</span>
+<span class="line-numbers">47</span><span class="code-line">        <span class="function">node_last</span>(*<span class="variable">lst</span>)-><span class="variable">next</span> = <span class="variable">new</span>;</span>
+<span class="line-numbers">48</span><span class="code-line">    <span class="keyword">else</span></span>
+<span class="line-numbers">49</span><span class="code-line">        *<span class="variable">lst</span> = <span class="variable">new</span>;</span>
+<span class="line-numbers">50</span><span class="code-line">}</span>
+            </div>
+
+            <div class="explanation">
+                <h4>➕ Adição ao Final (Linhas 42-50)</h4>
+                <p>Adiciona um novo token ao final da lista ligada.</p>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔄 Passo a Passo da Adição:</h4>
+                <ol>
+                    <li><strong>Linha 44-45:</strong> Verifica se os parâmetros são válidos</li>
+                    <li><strong>Linha 46-47:</strong> Se a lista existe, adiciona ao final</li>
+                    <li><strong>Linha 48-49:</strong> Se a lista está vazia, o novo nó se torna o primeiro</li>
+                </ol>
+            </div>
+
+            <div class="code-block">
+<span class="line-numbers">52</span><span class="code-line"><span class="type">void</span> <span class="function">free_nodelist</span>(<span class="type">t_token</span> *<span class="variable">list</span>)</span>
+<span class="line-numbers">53</span><span class="code-line">{</span>
+<span class="line-numbers">54</span><span class="code-line">    <span class="type">t_token</span> *<span class="variable">tmp</span>;</span>
+<span class="line-numbers">55</span><span class="code-line"></span>
+<span class="line-numbers">56</span><span class="code-line">    <span class="keyword">while</span> (<span class="variable">list</span>)</span>
+<span class="line-numbers">57</span><span class="code-line">    {</span>
+<span class="line-numbers">58</span><span class="code-line">        <span class="variable">tmp</span> = <span class="variable">list</span>-><span class="variable">next</span>;</span>
+<span class="line-numbers">59</span><span class="code-line">        <span class="function">free</span>(<span class="variable">list</span>-><span class="variable">value</span>);</span>
+<span class="line-numbers">60</span><span class="code-line">        <span class="function">free</span>(<span class="variable">list</span>);</span>
+<span class="line-numbers">61</span><span class="code-line">        <span class="variable">list</span> = <span class="variable">tmp</span>;</span>
+<span class="line-numbers">62</span><span class="code-line">    }</span>
+<span class="line-numbers">63</span><span class="code-line">}</span>
+            </div>
+
+            <div class="explanation">
+                <h4>🗑️ Liberação da Lista (Linhas 52-63)</h4>
+                <p>Libera toda a memória alocada para a lista de tokens.</p>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔄 Passo a Passo da Liberação:</h4>
+                <ol>
+                    <li><strong>Linha 56:</strong> Percorre todos os nós da lista</li>
+                    <li><strong>Linha 58:</strong> Salva o próximo nó antes de liberar o atual</li>
+                    <li><strong>Linha 59:</strong> Libera a string do valor do token</li>
+                    <li><strong>Linha 60:</strong> Libera a estrutura do token</li>
+                    <li><strong>Linha 61:</strong> Move para o próximo nó</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- BUILTIN_ECHO.C -->
+        <div id="builtin-echo" class="file-section">
+            <h2>16. 📢 builtin_echo.c - Comando Echo</h2>
+            
+            <div class="explanation">
+                <h4>🎯 Funcionalidade do Echo</h4>
+                <p>O comando echo imprime argumentos na saída padrão. Suporta a opção -n para suprimir a quebra de linha final.</p>
+            </div>
+
+            <div class="code-block">
+<span class="line-numbers">15</span><span class="code-line"><span class="type">int</span> <span class="function">builtin_echo</span>(<span class="type">char</span> **<span class="variable">args</span>)</span>
+<span class="line-numbers">16</span><span class="code-line">{</span>
+<span class="line-numbers">17</span><span class="code-line">    <span class="type">int</span> <span class="variable">i</span>;</span>
+<span class="line-numbers">18</span><span class="code-line">    <span class="type">int</span> <span class="variable">newline</span>;</span>
+<span class="line-numbers">19</span><span class="code-line"></span>
+<span class="line-numbers">20</span><span class="code-line">    <span class="variable">i</span> = <span class="number">1</span>;</span>
+<span class="line-numbers">21</span><span class="code-line">    <span class="variable">newline</span> = <span class="number">1</span>;</span>
+<span class="line-numbers">22</span><span class="code-line">    <span class="keyword">if</span> (<span class="variable">args</span>[<span class="variable">i</span>] && <span class="function">ft_strcmp</span>(<span class="variable">args</span>[<span class="variable">i</span>], <span class="string">"-n"</span>) == <span class="number">0</span>)</span>
+<span class="line-numbers">23</span><span class="code-line">    {</span>
+<span class="line-numbers">24</span><span class="code-line">        <span class="variable">newline</span> = <span class="number">0</span>;</span>
+<span class="line-numbers">25</span><span class="code-line">        <span class="variable">i</span>++;</span>
+<span class="line-numbers">26</span><span class="code-line">    }</span>
+<span class="line-numbers">27</span><span class="code-line">    <span class="keyword">while</span> (<span class="variable">args</span>[<span class="variable">i</span>])</span>
+<span class="line-numbers">28</span><span class="code-line">    {</span>
+<span class="line-numbers">29</span><span class="code-line">        <span class="function">printf</span>(<span class="string">"%s"</span>, <span class="variable">args</span>[<span class="variable">i</span>]);</span>
+<span class="line-numbers">30</span><span class="code-line">        <span class="keyword">if</span> (<span class="variable">args</span>[<span class="variable">i</span> + <span class="number">1</span>])</span>
+<span class="line-numbers">31</span><span class="code-line">            <span class="function">printf</span>(<span class="string">" "</span>);</span>
+<span class="line-numbers">32</span><span class="code-line">        <span class="variable">i</span>++;</span>
+<span class="line-numbers">33</span><span class="code-line">    }</span>
+<span class="line-numbers">34</span><span class="code-line">    <span class="keyword">if</span> (<span class="variable">newline</span>)</span>
+<span class="line-numbers">35</span><span class="code-line">        <span class="function">printf</span>(<span class="string">"\n"</span>);</span>
+<span class="line-numbers">36</span><span class="code-line">    <span class="keyword">return</span> (<span class="number">0</span>);</span>
+<span class="line-numbers">37</span><span class="code-line">}</span>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔄 Passo a Passo do Echo:</h4>
+                <ol>
+                    <li><strong>Linha 20-21:</strong> Inicializa índice e flag de quebra de linha</li>
+                    <li><strong>Linha 22-26:</strong> Verifica se há a opção -n e ajusta comportamento</li>
+                    <li><strong>Linha 27-33:</strong> Imprime todos os argumentos com espaços entre eles</li>
+                    <li><strong>Linha 30-31:</strong> Adiciona espaço entre argumentos (exceto o último)</li>
+                    <li><strong>Linha 34-35:</strong> Adiciona quebra de linha se não foi suprimida</li>
+                    <li><strong>Linha 36:</strong> Retorna 0 (sucesso)</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- BUILTIN_PWD.C -->
+        <div id="builtin-pwd" class="file-section">
+            <h2>21. 📍 builtin_pwd.c - Comando PWD</h2>
+            
+            <div class="explanation">
+                <h4>🎯 Funcionalidade do PWD</h4>
+                <p>O comando pwd (Print Working Directory) exibe o diretório de trabalho atual.</p>
+            </div>
+
+            <div class="code-block">
+<span class="line-numbers">15</span><span class="code-line"><span class="type">int</span> <span class="function">builtin_pwd</span>(<span class="type">char</span> **<span class="variable">args</span>)</span>
+<span class="line-numbers">16</span><span class="code-line">{</span>
+<span class="line-numbers">17</span><span class="code-line">    <span class="type">char</span> *<span class="variable">cwd</span>;</span>
+<span class="line-numbers">18</span><span class="code-line"></span>
+<span class="line-numbers">19</span><span class="code-line">    (<span class="type">void</span>)<span class="variable">args</span>;</span>
+<span class="line-numbers">20</span><span class="code-line">    <span class="variable">cwd</span> = <span class="function">getcwd</span>(<span class="variable">NULL</span>, <span class="number">0</span>);</span>
+<span class="line-numbers">21</span><span class="code-line">    <span class="keyword">if</span> (!<span class="variable">cwd</span>)</span>
+<span class="line-numbers">22</span><span class="code-line">    {</span>
+<span class="line-numbers">23</span><span class="code-line">        <span class="function">perror</span>(<span class="string">"pwd"</span>);</span>
+<span class="line-numbers">24</span><span class="code-line">        <span class="keyword">return</span> (<span class="number">1</span>);</span>
+<span class="line-numbers">25</span><span class="code-line">    }</span>
+<span class="line-numbers">26</span><span class="code-line">    <span class="function">printf</span>(<span class="string">"%s\n"</span>, <span class="variable">cwd</span>);</span>
+<span class="line-numbers">27</span><span class="code-line">    <span class="function">free</span>(<span class="variable">cwd</span>);</span>
+<span class="line-numbers">28</span><span class="code-line">    <span class="keyword">return</span> (<span class="number">0</span>);</span>
+<span class="line-numbers">29</span><span class="code-line">}</span>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔄 Passo a Passo do PWD:</h4>
+                <ol>
+                    <li><strong>Linha 19:</strong> Marca args como não utilizado</li>
+                    <li><strong>Linha 20:</strong> Obtém o diretório atual usando getcwd()</li>
+                    <li><strong>Linha 21-25:</strong> Verifica se houve erro e exibe mensagem</li>
+                    <li><strong>Linha 26:</strong> Imprime o caminho do diretório atual</li>
+                    <li><strong>Linha 27:</strong> Libera a memória alocada por getcwd()</li>
+                    <li><strong>Linha 28:</strong> Retorna 0 (sucesso)</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- EXECUTOR_PIPELINE.C -->
+        <div id="executor-pipeline" class="file-section">
+            <h2>12. 🔄 executor_pipeline.c - Executor de Pipelines</h2>
+            
+            <div class="explanation">
+                <h4>🎯 Funcionalidade dos Pipelines</h4>
+                <p>Gerencia a execução de comandos conectados por pipes (|), permitindo que a saída de um comando seja a entrada do próximo.</p>
+            </div>
+
+            <div class="code-block">
+<span class="line-numbers">15</span><span class="code-line"><span class="type">void</span> <span class="function">setup_child_pipes</span>(<span class="type">int</span> <span class="variable">prev_fd</span>, <span class="type">int</span> *<span class="variable">pipe_fd</span>, <span class="type">int</span> <span class="variable">is_last</span>)</span>
+<span class="line-numbers">16</span><span class="code-line">{</span>
+<span class="line-numbers">17</span><span class="code-line">    <span class="keyword">if</span> (<span class="variable">prev_fd</span> != -<span class="number">1</span>)</span>
+<span class="line-numbers">18</span><span class="code-line">    {</span>
+<span class="line-numbers">19</span><span class="code-line">        <span class="function">dup2</span>(<span class="variable">prev_fd</span>, <span class="variable">STDIN_FILENO</span>);</span>
+<span class="line-numbers">20</span><span class="code-line">        <span class="function">close</span>(<span class="variable">prev_fd</span>);</span>
+<span class="line-numbers">21</span><span class="code-line">    }</span>
+<span class="line-numbers">22</span><span class="code-line">    <span class="keyword">if</span> (!<span class="variable">is_last</span>)</span>
+<span class="line-numbers">23</span><span class="code-line">    {</span>
+<span class="line-numbers">24</span><span class="code-line">        <span class="function">dup2</span>(<span class="variable">pipe_fd</span>[<span class="number">1</span>], <span class="variable">STDOUT_FILENO</span>);</span>
+<span class="line-numbers">25</span><span class="code-line">        <span class="function">close</span>(<span class="variable">pipe_fd</span>[<span class="number">1</span>]);</span>
+<span class="line-numbers">26</span><span class="code-line">        <span class="function">close</span>(<span class="variable">pipe_fd</span>[<span class="number">0</span>]);</span>
+<span class="line-numbers">27</span><span class="code-line">    }</span>
+<span class="line-numbers">28</span><span class="code-line">}</span>
+            </div>
+
+            <div class="explanation">
+                <h4>🔧 Configuração de Pipes Filhos (Linhas 15-28)</h4>
+                <p>Configura os descritores de arquivo para processos filhos em um pipeline.</p>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔄 Passo a Passo da Configuração:</h4>
+                <ol>
+                    <li><strong>Linha 17-21:</strong> Se há entrada anterior, redireciona stdin</li>
+                    <li><strong>Linha 19:</strong> Duplica o descritor de entrada para stdin</li>
+                    <li><strong>Linha 20:</strong> Fecha o descritor original</li>
+                    <li><strong>Linha 22-27:</strong> Se não é o último comando, configura saída</li>
+                    <li><strong>Linha 24:</strong> Redireciona stdout para o pipe</li>
+                    <li><strong>Linha 25-26:</strong> Fecha os descritores do pipe</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- PARSER_MAIN.C -->
+        <div id="parser-main" class="file-section">
+            <h2>5. 🔍 parser_main.c - Parser Principal</h2>
+            
+            <div class="explanation">
+                <h4>🎯 Funcionalidade do Parser</h4>
+                <p>Converte a lista de tokens em uma estrutura de comandos executável, processando argumentos, pipes e redirecionamentos.</p>
+            </div>
+
+            <div class="code-block">
+<span class="line-numbers">15</span><span class="code-line"><span class="keyword">static</span> <span class="type">t_cmd</span> *<span class="function">create_cmd</span>(<span class="type">void</span>)</span>
+<span class="line-numbers">16</span><span class="code-line">{</span>
+<span class="line-numbers">17</span><span class="code-line">    <span class="type">t_cmd</span> *<span class="variable">cmd</span>;</span>
+<span class="line-numbers">18</span><span class="code-line"></span>
+<span class="line-numbers">19</span><span class="code-line">    <span class="variable">cmd</span> = <span class="function">malloc</span>(<span class="keyword">sizeof</span>(<span class="type">t_cmd</span>));</span>
+<span class="line-numbers">20</span><span class="code-line">    <span class="keyword">if</span> (!<span class="variable">cmd</span>)</span>
+<span class="line-numbers">21</span><span class="code-line">        <span class="keyword">return</span> (<span class="variable">NULL</span>);</span>
+<span class="line-numbers">22</span><span class="code-line">    <span class="variable">cmd</span>-><span class="variable">args</span> = <span class="variable">NULL</span>;</span>
+<span class="line-numbers">23</span><span class="code-line">    <span class="variable">cmd</span>-><span class="variable">redirs</span> = <span class="variable">NULL</span>;</span>
+<span class="line-numbers">24</span><span class="code-line">    <span class="variable">cmd</span>-><span class="variable">next</span> = <span class="variable">NULL</span>;</span>
+<span class="line-numbers">25</span><span class="code-line">    <span class="keyword">return</span> (<span class="variable">cmd</span>);</span>
+<span class="line-numbers">26</span><span class="code-line">}</span>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔄 Passo a Passo da Criação de Comando:</h4>
+                <ol>
+                    <li><strong>Linha 19:</strong> Aloca memória para nova estrutura de comando</li>
+                    <li><strong>Linha 20-21:</strong> Verifica se a alocação foi bem-sucedida</li>
+                    <li><strong>Linha 22-24:</strong> Inicializa todos os campos como NULL</li>
+                    <li><strong>Linha 25:</strong> Retorna o comando criado</li>
+                </ol>
+            </div>
+
+            <div class="code-block">
+<span class="line-numbers">78</span><span class="code-line"><span class="type">t_cmd</span> *<span class="function">parse_tokens</span>(<span class="type">t_token</span> *<span class="variable">tokens</span>, <span class="type">t_env</span> *<span class="variable">env</span>, <span class="type">int</span> <span class="variable">last_exit</span>)</span>
+<span class="line-numbers">79</span><span class="code-line">{</span>
+<span class="line-numbers">80</span><span class="code-line">    <span class="type">t_cmd</span> *<span class="variable">cmd_list</span>;</span>
+<span class="line-numbers">81</span><span class="code-line">    <span class="type">t_cmd</span> *<span class="variable">current_cmd</span>;</span>
+<span class="line-numbers">82</span><span class="code-line">    <span class="type">t_token</span> *<span class="variable">token</span>;</span>
+<span class="line-numbers">83</span><span class="code-line"></span>
+<span class="line-numbers">84</span><span class="code-line">    <span class="keyword">if</span> (!<span class="variable">tokens</span>)</span>
+<span class="line-numbers">85</span><span class="code-line">        <span class="keyword">return</span> (<span class="variable">NULL</span>);</span>
+<span class="line-numbers">86</span><span class="code-line">    <span class="variable">cmd_list</span> = <span class="function">create_cmd</span>();</span>
+<span class="line-numbers">87</span><span class="code-line">    <span class="variable">current_cmd</span> = <span class="variable">cmd_list</span>;</span>
+<span class="line-numbers">88</span><span class="code-line">    <span class="variable">token</span> = <span class="variable">tokens</span>;</span>
+<span class="line-numbers">89</span><span class="code-line">    <span class="keyword">while</span> (<span class="variable">token</span>)</span>
+<span class="line-numbers">90</span><span class="code-line">    {</span>
+<span class="line-numbers">91</span><span class="code-line">        <span class="keyword">if</span> (<span class="variable">token</span>-><span class="variable">type</span> == <span class="variable">TOKEN_WORD</span>)</span>
+<span class="line-numbers">92</span><span class="code-line">            <span class="function">add_arg_to_cmd</span>(<span class="variable">current_cmd</span>, <span class="variable">token</span>-><span class="variable">value</span>, <span class="variable">env</span>, <span class="variable">last_exit</span>);</span>
+<span class="line-numbers">93</span><span class="code-line">        <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">token</span>-><span class="variable">type</span> == <span class="variable">TOKEN_PIPE</span>)</span>
+<span class="line-numbers">94</span><span class="code-line">        {</span>
+<span class="line-numbers">95</span><span class="code-line">            <span class="variable">current_cmd</span>-><span class="variable">next</span> = <span class="function">create_cmd</span>();</span>
+<span class="line-numbers">96</span><span class="code-line">            <span class="variable">current_cmd</span> = <span class="variable">current_cmd</span>-><span class="variable">next</span>;</span>
+<span class="line-numbers">97</span><span class="code-line">        }</span>
+<span class="line-numbers">98</span><span class="code-line">        <span class="variable">token</span> = <span class="variable">token</span>-><span class="variable">next</span>;</span>
+<span class="line-numbers">99</span><span class="code-line">    }</span>
+<span class="line-numbers">100</span><span class="code-line">    <span class="keyword">return</span> (<span class="variable">cmd_list</span>);</span>
+<span class="line-numbers">101</span><span class="code-line">}</span>
+            </div>
+
+            <div class="explanation">
+                <h4>🔄 Função Principal do Parser (Linhas 78-101)</h4>
+                <p>Processa a lista de tokens e constrói uma lista ligada de comandos.</p>
+            </div>
+        </div>
+
+        <!-- LEXER_MAIN.C -->
+        <div id="lexer-main" class="file-section">
+            <h2>6. 🔤 lexer_main.c - Lexer Principal</h2>
+            
+            <div class="explanation">
+                <h4>🎯 Funcionalidade do Lexer</h4>
+                <p>Valida e processa tokens, garantindo que a sintaxe dos comandos esteja correta.</p>
+            </div>
+
+            <div class="code-block">
+<span class="line-numbers">27</span><span class="code-line"><span class="type">int</span> <span class="function">validate_tokens</span>(<span class="type">t_token</span> *<span class="variable">tokens</span>)</span>
+<span class="line-numbers">28</span><span class="code-line">{</span>
+<span class="line-numbers">29</span><span class="code-line">    <span class="type">t_token</span> *<span class="variable">current</span>;</span>
+<span class="line-numbers">30</span><span class="code-line">    <span class="type">int</span> <span class="variable">pipe_count</span>;</span>
+<span class="line-numbers">31</span><span class="code-line"></span>
+<span class="line-numbers">32</span><span class="code-line">    <span class="keyword">if</span> (!<span class="variable">tokens</span>)</span>
+<span class="line-numbers">33</span><span class="code-line">        <span class="keyword">return</span> (<span class="number">0</span>);</span>
+<span class="line-numbers">34</span><span class="code-line">    <span class="variable">current</span> = <span class="variable">tokens</span>;</span>
+<span class="line-numbers">35</span><span class="code-line">    <span class="variable">pipe_count</span> = <span class="number">0</span>;</span>
+<span class="line-numbers">36</span><span class="code-line">    <span class="keyword">if</span> (<span class="variable">current</span>-><span class="variable">type</span> == <span class="variable">TOKEN_PIPE</span>)</span>
+<span class="line-numbers">37</span><span class="code-line">        <span class="keyword">return</span> (<span class="number">0</span>);</span>
+<span class="line-numbers">38</span><span class="code-line">    <span class="keyword">while</span> (<span class="variable">current</span>)</span>
+<span class="line-numbers">39</span><span class="code-line">    {</span>
+<span class="line-numbers">40</span><span class="code-line">        <span class="keyword">if</span> (<span class="variable">current</span>-><span class="variable">type</span> == <span class="variable">TOKEN_PIPE</span>)</span>
+<span class="line-numbers">41</span><span class="code-line">        {</span>
+<span class="line-numbers">42</span><span class="code-line">            <span class="variable">pipe_count</span>++;</span>
+<span class="line-numbers">43</span><span class="code-line">            <span class="keyword">if</span> (!<span class="variable">current</span>-><span class="variable">next</span> || <span class="variable">current</span>-><span class="variable">next</span>-><span class="variable">type</span> == <span class="variable">TOKEN_PIPE</span>)</span>
+<span class="line-numbers">44</span><span class="code-line">                <span class="keyword">return</span> (<span class="number">0</span>);</span>
+<span class="line-numbers">45</span><span class="code-line">        }</span>
+<span class="line-numbers">46</span><span class="code-line">        <span class="variable">current</span> = <span class="variable">current</span>-><span class="variable">next</span>;</span>
+<span class="line-numbers">47</span><span class="code-line">    }</span>
+<span class="line-numbers">48</span><span class="code-line">    <span class="keyword">return</span> (<span class="number">1</span>);</span>
+<span class="line-numbers">49</span><span class="code-line">}</span>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔄 Passo a Passo da Validação:</h4>
+                <ol>
+                    <li><strong>Linha 32-33:</strong> Verifica se há tokens para validar</li>
+                    <li><strong>Linha 36-37:</strong> Rejeita se começar com pipe</li>
+                    <li><strong>Linha 40-45:</strong> Verifica pipes consecutivos ou no final</li>
+                    <li><strong>Linha 48:</strong> Retorna 1 se válido, 0 se inválido</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- EXPANDER_MAIN.C -->
+        <div id="expander-main" class="file-section">
+            <h2>7. 🔄 expander_main.c - Expansor de Variáveis</h2>
+            
+            <div class="explanation">
+                <h4>🎯 Funcionalidade do Expansor</h4>
+                <p>Expande variáveis de ambiente ($VAR) e códigos de saída ($?) em strings de comando.</p>
+            </div>
+
+            <div class="code-block">
+<span class="line-numbers">15</span><span class="code-line"><span class="keyword">static</span> <span class="type">char</span> *<span class="function">get_var_name</span>(<span class="type">char</span> *<span class="variable">str</span>, <span class="type">int</span> *<span class="variable">i</span>)</span>
+<span class="line-numbers">16</span><span class="code-line">{</span>
+<span class="line-numbers">17</span><span class="code-line">    <span class="type">int</span> <span class="variable">start</span>;</span>
+<span class="line-numbers">18</span><span class="code-line">    <span class="type">int</span> <span class="variable">len</span>;</span>
+<span class="line-numbers">19</span><span class="code-line">    <span class="type">char</span> *<span class="variable">var_name</span>;</span>
+<span class="line-numbers">20</span><span class="code-line"></span>
+<span class="line-numbers">21</span><span class="code-line">    <span class="variable">start</span> = *<span class="variable">i</span>;</span>
+<span class="line-numbers">22</span><span class="code-line">    <span class="keyword">if</span> (<span class="variable">str</span>[*<span class="variable">i</span>] == <span class="string">'?'</span>)</span>
+<span class="line-numbers">23</span><span class="code-line">    {</span>
+<span class="line-numbers">24</span><span class="code-line">        (*<span class="variable">i</span>)++;</span>
+<span class="line-numbers">25</span><span class="code-line">        <span class="keyword">return</span> (<span class="function">ft_strdup</span>(<span class="string">"?"</span>));</span>
+<span class="line-numbers">26</span><span class="code-line">    }</span>
+<span class="line-numbers">27</span><span class="code-line">    <span class="keyword">while</span> (<span class="variable">str</span>[*<span class="variable">i</span>] && (<span class="function">ft_isalnum</span>(<span class="variable">str</span>[*<span class="variable">i</span>]) || <span class="variable">str</span>[*<span class="variable">i</span>] == <span class="string">'_'</span>))</span>
+<span class="line-numbers">28</span><span class="code-line">        (*<span class="variable">i</span>)++;</span>
+<span class="line-numbers">29</span><span class="code-line">    <span class="variable">len</span> = *<span class="variable">i</span> - <span class="variable">start</span>;</span>
+<span class="line-numbers">30</span><span class="code-line">    <span class="variable">var_name</span> = <span class="function">malloc</span>(<span class="variable">len</span> + <span class="number">1</span>);</span>
+<span class="line-numbers">31</span><span class="code-line">    <span class="keyword">return</span> (<span class="variable">var_name</span>);</span>
+<span class="line-numbers">32</span><span class="code-line">}</span>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔄 Passo a Passo da Extração de Nome:</h4>
+                <ol>
+                    <li><strong>Linha 22-26:</strong> Trata caso especial da variável $?</li>
+                    <li><strong>Linha 27-28:</strong> Extrai nome da variável (alfanumérico + _)</li>
+                    <li><strong>Linha 29-31:</strong> Calcula tamanho e aloca memória</li>
+                </ol>
+            </div>
+
+            <div class="code-block">
+<span class="line-numbers">82</span><span class="code-line"><span class="type">char</span> *<span class="function">expand_string</span>(<span class="type">char</span> *<span class="variable">str</span>, <span class="type">t_env</span> *<span class="variable">env</span>, <span class="type">int</span> <span class="variable">last_exit</span>)</span>
+<span class="line-numbers">83</span><span class="code-line">{</span>
+<span class="line-numbers">84</span><span class="code-line">    <span class="type">char</span> *<span class="variable">result</span>;</span>
+<span class="line-numbers">85</span><span class="code-line">    <span class="type">int</span> <span class="variable">i</span>;</span>
+<span class="line-numbers">86</span><span class="code-line">    <span class="type">int</span> <span class="variable">j</span>;</span>
+<span class="line-numbers">87</span><span class="code-line"></span>
+<span class="line-numbers">88</span><span class="code-line">    <span class="variable">result</span> = <span class="function">init_result_buffer</span>(<span class="variable">str</span>);</span>
+<span class="line-numbers">89</span><span class="code-line">    <span class="variable">i</span> = <span class="number">0</span>;</span>
+<span class="line-numbers">90</span><span class="code-line">    <span class="variable">j</span> = <span class="number">0</span>;</span>
+<span class="line-numbers">91</span><span class="code-line">    <span class="keyword">while</span> (<span class="variable">str</span>[<span class="variable">i</span>])</span>
+<span class="line-numbers">92</span><span class="code-line">    {</span>
+<span class="line-numbers">93</span><span class="code-line">        <span class="keyword">if</span> (<span class="variable">str</span>[<span class="variable">i</span>] == <span class="string">'$'</span> && <span class="variable">str</span>[<span class="variable">i</span> + <span class="number">1</span>])</span>
+<span class="line-numbers">94</span><span class="code-line">        {</span>
+<span class="line-numbers">95</span><span class="code-line">            <span class="function">process_variable</span>(<span class="variable">str</span>, &<span class="variable">i</span>, <span class="variable">result</span>, &<span class="variable">j</span>, <span class="variable">env</span>, <span class="variable">last_exit</span>);</span>
+<span class="line-numbers">96</span><span class="code-line">        }</span>
+<span class="line-numbers">97</span><span class="code-line">        <span class="keyword">else</span></span>
+<span class="line-numbers">98</span><span class="code-line">            <span class="variable">result</span>[<span class="variable">j</span>++] = <span class="variable">str</span>[<span class="variable">i</span>++];</span>
+<span class="line-numbers">99</span><span class="code-line">    }</span>
+<span class="line-numbers">100</span><span class="code-line">    <span class="variable">result</span>[<span class="variable">j</span>] = <span class="string">'\0'</span>;</span>
+<span class="line-numbers">101</span><span class="code-line">    <span class="keyword">return</span> (<span class="variable">result</span>);</span>
+<span class="line-numbers">102</span><span class="code-line">}</span>
+            </div>
+
+            <div class="explanation">
+                <h4>🔄 Função Principal de Expansão (Linhas 82-102)</h4>
+                <p>Percorre a string procurando por $ e expande as variáveis encontradas.</p>
+            </div>
+        </div>
+
+        <!-- EXECUTOR_MAIN.C -->
+        <div id="executor-main" class="file-section">
+            <h2>8. ⚡ executor_main.c - Executor Principal</h2>
+            
+            <div class="explanation">
+                <h4>🎯 Funcionalidade do Executor</h4>
+                <p>Coordena a execução de comandos, decidindo entre builtins, comandos únicos e pipelines.</p>
+            </div>
+
+            <div class="code-block">
+<span class="line-numbers">15</span><span class="code-line"><span class="type">int</span> <span class="function">is_builtin</span>(<span class="type">char</span> *<span class="variable">cmd</span>)</span>
+<span class="line-numbers">16</span><span class="code-line">{</span>
+<span class="line-numbers">17</span><span class="code-line">    <span class="keyword">if</span> (!<span class="variable">cmd</span>)</span>
+<span class="line-numbers">18</span><span class="code-line">        <span class="keyword">return</span> (<span class="number">0</span>);</span>
+<span class="line-numbers">19</span><span class="code-line">    <span class="keyword">if</span> (<span class="function">ft_strcmp</span>(<span class="variable">cmd</span>, <span class="string">"echo"</span>) == <span class="number">0</span>)</span>
+<span class="line-numbers">20</span><span class="code-line">        <span class="keyword">return</span> (<span class="number">1</span>);</span>
+<span class="line-numbers">21</span><span class="code-line">    <span class="keyword">if</span> (<span class="function">ft_strcmp</span>(<span class="variable">cmd</span>, <span class="string">"cd"</span>) == <span class="number">0</span>)</span>
+<span class="line-numbers">22</span><span class="code-line">        <span class="keyword">return</span> (<span class="number">1</span>);</span>
+<span class="line-numbers">23</span><span class="code-line">    <span class="comment">/* ... outros builtins ... */</span></span>
+<span class="line-numbers">24</span><span class="code-line">    <span class="keyword">return</span> (<span class="number">0</span>);</span>
+<span class="line-numbers">25</span><span class="code-line">}</span>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔄 Passo a Passo da Verificação de Builtin:</h4>
+                <ol>
+                    <li><strong>Linha 17-18:</strong> Verifica se o comando não é NULL</li>
+                    <li><strong>Linha 19-23:</strong> Compara com cada comando builtin</li>
+                    <li><strong>Linha 24:</strong> Retorna 0 se não for builtin</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- BUILTIN_CD.C -->
+        <div id="builtin-cd" class="file-section">
+            <h2>17. 📁 builtin_cd.c - Comando CD</h2>
+            
+            <div class="explanation">
+                <h4>🎯 Funcionalidade do CD</h4>
+                <p>Muda o diretório de trabalho atual. Se nenhum argumento for fornecido, vai para o diretório HOME.</p>
+            </div>
+
+            <div class="code-block">
+<span class="line-numbers">28</span><span class="code-line"><span class="type">int</span> <span class="function">builtin_cd</span>(<span class="type">char</span> **<span class="variable">args</span>, <span class="type">t_env</span> *<span class="variable">env</span>)</span>
+<span class="line-numbers">29</span><span class="code-line">{</span>
+<span class="line-numbers">30</span><span class="code-line">    <span class="type">char</span> *<span class="variable">path</span>;</span>
+<span class="line-numbers">31</span><span class="code-line">    <span class="type">char</span> *<span class="variable">home</span>;</span>
+<span class="line-numbers">32</span><span class="code-line"></span>
+<span class="line-numbers">33</span><span class="code-line">    <span class="keyword">if</span> (!<span class="variable">args</span>[<span class="number">1</span>])</span>
+<span class="line-numbers">34</span><span class="code-line">    {</span>
+<span class="line-numbers">35</span><span class="code-line">        <span class="variable">home</span> = <span class="function">get_home_path</span>(<span class="variable">env</span>);</span>
+<span class="line-numbers">36</span><span class="code-line">        <span class="keyword">if</span> (!<span class="variable">home</span>)</span>
+<span class="line-numbers">37</span><span class="code-line">        {</span>
+<span class="line-numbers">38</span><span class="code-line">            <span class="function">ft_putstr_fd</span>(<span class="string">"minishell: cd: HOME not set\n"</span>, <span class="number">2</span>);</span>
+<span class="line-numbers">39</span><span class="code-line">            <span class="keyword">return</span> (<span class="number">1</span>);</span>
+<span class="line-numbers">40</span><span class="code-line">        }</span>
+<span class="line-numbers">41</span><span class="code-line">        <span class="variable">path</span> = <span class="variable">home</span>;</span>
+<span class="line-numbers">42</span><span class="code-line">    }</span>
+<span class="line-numbers">43</span><span class="code-line">    <span class="keyword">else</span></span>
+<span class="line-numbers">44</span><span class="code-line">        <span class="variable">path</span> = <span class="variable">args</span>[<span class="number">1</span>];</span>
+<span class="line-numbers">45</span><span class="code-line">    </span>
+<span class="line-numbers">46</span><span class="code-line">    <span class="keyword">if</span> (<span class="function">chdir</span>(<span class="variable">path</span>) == -<span class="number">1</span>)</span>
+<span class="line-numbers">47</span><span class="code-line">    {</span>
+<span class="line-numbers">48</span><span class="code-line">        <span class="function">perror</span>(<span class="string">"minishell: cd"</span>);</span>
+<span class="line-numbers">49</span><span class="code-line">        <span class="keyword">return</span> (<span class="number">1</span>);</span>
+<span class="line-numbers">50</span><span class="code-line">    }</span>
+<span class="line-numbers">51</span><span class="code-line">    <span class="keyword">return</span> (<span class="number">0</span>);</span>
+<span class="line-numbers">52</span><span class="code-line">}</span>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔄 Passo a Passo do CD:</h4>
+                <ol>
+                    <li><strong>Linha 33-42:</strong> Se sem argumento, busca diretório HOME</li>
+                    <li><strong>Linha 43-44:</strong> Senão, usa o argumento fornecido</li>
+                    <li><strong>Linha 46-50:</strong> Tenta mudar diretório com chdir()</li>
+                    <li><strong>Linha 51:</strong> Retorna 0 em caso de sucesso</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- BUILTIN_ENV.C -->
+        <div id="builtin-env" class="file-section">
+            <h2>18. 🌍 builtin_env.c - Comando ENV</h2>
+            
+            <div class="explanation">
+                <h4>🎯 Funcionalidade do ENV</h4>
+                <p>Exibe todas as variáveis de ambiente definidas no formato CHAVE=VALOR.</p>
+            </div>
+
+            <div class="code-block">
+<span class="line-numbers">15</span><span class="code-line"><span class="type">int</span> <span class="function">builtin_env</span>(<span class="type">char</span> **<span class="variable">args</span>, <span class="type">t_env</span> *<span class="variable">env</span>)</span>
+<span class="line-numbers">16</span><span class="code-line">{</span>
+<span class="line-numbers">17</span><span class="code-line">    <span class="type">t_env</span> *<span class="variable">current</span>;</span>
+<span class="line-numbers">18</span><span class="code-line"></span>
+<span class="line-numbers">19</span><span class="code-line">    (<span class="type">void</span>)<span class="variable">args</span>;</span>
+<span class="line-numbers">20</span><span class="code-line">    <span class="variable">current</span> = <span class="variable">env</span>;</span>
+<span class="line-numbers">21</span><span class="code-line">    <span class="keyword">while</span> (<span class="variable">current</span>)</span>
+<span class="line-numbers">22</span><span class="code-line">    {</span>
+<span class="line-numbers">23</span><span class="code-line">        <span class="keyword">if</span> (<span class="variable">current</span>-><span class="variable">value</span>)</span>
+<span class="line-numbers">24</span><span class="code-line">            <span class="function">printf</span>(<span class="string">"%s=%s\n"</span>, <span class="variable">current</span>-><span class="variable">key</span>, <span class="variable">current</span>-><span class="variable">value</span>);</span>
+<span class="line-numbers">25</span><span class="code-line">        <span class="variable">current</span> = <span class="variable">current</span>-><span class="variable">next</span>;</span>
+<span class="line-numbers">26</span><span class="code-line">    }</span>
+<span class="line-numbers">27</span><span class="code-line">    <span class="keyword">return</span> (<span class="number">0</span>);</span>
+<span class="line-numbers">28</span><span class="code-line">}</span>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔄 Passo a Passo do ENV:</h4>
+                <ol>
+                    <li><strong>Linha 19:</strong> Marca args como não utilizado</li>
+                    <li><strong>Linha 20:</strong> Inicia percurso da lista de variáveis</li>
+                    <li><strong>Linha 21-26:</strong> Percorre e imprime cada variável</li>
+                    <li><strong>Linha 23-24:</strong> Só imprime se a variável tem valor</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- BUILTIN_EXPORT.C -->
+        <div id="builtin-export" class="file-section">
+            <h2>19. 📤 builtin_export.c - Comando Export</h2>
+            
+            <div class="explanation">
+                <h4>🎯 Funcionalidade do Export</h4>
+                <p>Define ou modifica variáveis de ambiente. Sem argumentos, lista todas as variáveis exportadas.</p>
+            </div>
+
+            <div class="code-block">
+<span class="line-numbers">75</span><span class="code-line"><span class="type">int</span> <span class="function">builtin_export</span>(<span class="type">char</span> **<span class="variable">args</span>, <span class="type">t_env</span> **<span class="variable">env</span>)</span>
+<span class="line-numbers">76</span><span class="code-line">{</span>
+<span class="line-numbers">77</span><span class="code-line">    <span class="type">int</span> <span class="variable">i</span>;</span>
+<span class="line-numbers">78</span><span class="code-line"></span>
+<span class="line-numbers">79</span><span class="code-line">    <span class="keyword">if</span> (!<span class="variable">args</span>[<span class="number">1</span>])</span>
+<span class="line-numbers">80</span><span class="code-line">    {</span>
+<span class="line-numbers">81</span><span class="code-line">        <span class="function">print_export_env</span>(*<span class="variable">env</span>);</span>
+<span class="line-numbers">82</span><span class="code-line">        <span class="keyword">return</span> (<span class="number">0</span>);</span>
+<span class="line-numbers">83</span><span class="code-line">    }</span>
+<span class="line-numbers">84</span><span class="code-line">    </span>
+<span class="line-numbers">85</span><span class="code-line">    <span class="variable">i</span> = <span class="number">1</span>;</span>
+<span class="line-numbers">86</span><span class="code-line">    <span class="keyword">while</span> (<span class="variable">args</span>[<span class="variable">i</span>])</span>
+<span class="line-numbers">87</span><span class="code-line">    {</span>
+<span class="line-numbers">88</span><span class="code-line">        <span class="function">process_export_arg</span>(<span class="variable">args</span>[<span class="variable">i</span>], <span class="variable">env</span>);</span>
+<span class="line-numbers">89</span><span class="code-line">        <span class="variable">i</span>++;</span>
+<span class="line-numbers">90</span><span class="code-line">    }</span>
+<span class="line-numbers">91</span><span class="code-line">    <span class="keyword">return</span> (<span class="number">0</span>);</span>
+<span class="line-numbers">92</span><span class="code-line">}</span>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔄 Passo a Passo do Export:</h4>
+                <ol>
+                    <li><strong>Linha 79-83:</strong> Se sem argumentos, lista variáveis</li>
+                    <li><strong>Linha 85-90:</strong> Processa cada argumento fornecido</li>
+                    <li><strong>Linha 88:</strong> Adiciona ou atualiza variável de ambiente</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- BUILTIN_EXIT.C -->
+        <div id="builtin-exit" class="file-section">
+            <h2>20. 🚪 builtin_exit.c - Comando Exit</h2>
+            
+            <div class="explanation">
+                <h4>🎯 Funcionalidade do Exit</h4>
+                <p>Encerra o shell com um código de saída opcional. Valida se o argumento é numérico.</p>
+            </div>
+
+            <div class="code-block">
+<span class="line-numbers">32</span><span class="code-line"><span class="type">int</span> <span class="function">builtin_exit</span>(<span class="type">char</span> **<span class="variable">args</span>)</span>
+<span class="line-numbers">33</span><span class="code-line">{</span>
+<span class="line-numbers">34</span><span class="code-line">    <span class="type">int</span> <span class="variable">exit_code</span>;</span>
+<span class="line-numbers">35</span><span class="code-line"></span>
+<span class="line-numbers">36</span><span class="code-line">    <span class="function">printf</span>(<span class="string">"exit\n"</span>);</span>
+<span class="line-numbers">37</span><span class="code-line">    <span class="keyword">if</span> (!<span class="variable">args</span>[<span class="number">1</span>])</span>
+<span class="line-numbers">38</span><span class="code-line">        <span class="function">exit</span>(<span class="number">0</span>);</span>
+<span class="line-numbers">39</span><span class="code-line">    <span class="keyword">if</span> (!<span class="function">is_numeric</span>(<span class="variable">args</span>[<span class="number">1</span>]))</span>
+<span class="line-numbers">40</span><span class="code-line">    {</span>
+<span class="line-numbers">41</span><span class="code-line">        <span class="function">printf</span>(<span class="string">"minishell: exit: %s: numeric argument required\n"</span>, <span class="variable">args</span>[<span class="number">1</span>]);</span>
+<span class="line-numbers">42</span><span class="code-line">        <span class="function">exit</span>(<span class="number">2</span>);</span>
+<span class="line-numbers">43</span><span class="code-line">    }</span>
+<span class="line-numbers">44</span><span class="code-line">    <span class="keyword">if</span> (<span class="variable">args</span>[<span class="number">2</span>])</span>
+<span class="line-numbers">45</span><span class="code-line">    {</span>
+<span class="line-numbers">46</span><span class="code-line">        <span class="function">printf</span>(<span class="string">"minishell: exit: too many arguments\n"</span>);</span>
+<span class="line-numbers">47</span><span class="code-line">        <span class="keyword">return</span> (<span class="number">1</span>);</span>
+<span class="line-numbers">48</span><span class="code-line">    }</span>
+<span class="line-numbers">49</span><span class="code-line">    <span class="variable">exit_code</span> = <span class="function">ft_atoi</span>(<span class="variable">args</span>[<span class="number">1</span>]);</span>
+<span class="line-numbers">50</span><span class="code-line">    <span class="function">exit</span>(<span class="variable">exit_code</span>);</span>
+<span class="line-numbers">51</span><span class="code-line">}</span>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔄 Passo a Passo do Exit:</h4>
+                <ol>
+                    <li><strong>Linha 36:</strong> Imprime "exit" na saída</li>
+                    <li><strong>Linha 37-38:</strong> Se sem argumentos, sai com código 0</li>
+                    <li><strong>Linha 39-43:</strong> Valida se argumento é numérico</li>
+                    <li><strong>Linha 44-48:</strong> Verifica se há muitos argumentos</li>
+                    <li><strong>Linha 49-50:</strong> Converte e usa código de saída</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- BUILTIN_UNSET.C -->
+        <div id="builtin-unset" class="file-section">
+            <h2>22. 🗑️ builtin_unset.c - Comando Unset</h2>
+            
+            <div class="explanation">
+                <h4>🎯 Funcionalidade do Unset</h4>
+                <p>Remove variáveis de ambiente da lista de variáveis do shell.</p>
+            </div>
+
+            <div class="code-block">
+<span class="line-numbers">38</span><span class="code-line"><span class="type">int</span> <span class="function">builtin_unset</span>(<span class="type">char</span> **<span class="variable">args</span>, <span class="type">t_env</span> **<span class="variable">env</span>)</span>
+<span class="line-numbers">39</span><span class="code-line">{</span>
+<span class="line-numbers">40</span><span class="code-line">    <span class="type">int</span> <span class="variable">i</span>;</span>
+<span class="line-numbers">41</span><span class="code-line"></span>
+<span class="line-numbers">42</span><span class="code-line">    <span class="keyword">if</span> (!<span class="variable">args</span>[<span class="number">1</span>])</span>
+<span class="line-numbers">43</span><span class="code-line">        <span class="keyword">return</span> (<span class="number">0</span>);</span>
+<span class="line-numbers">44</span><span class="code-line">    <span class="variable">i</span> = <span class="number">1</span>;</span>
+<span class="line-numbers">45</span><span class="code-line">    <span class="keyword">while</span> (<span class="variable">args</span>[<span class="variable">i</span>])</span>
+<span class="line-numbers">46</span><span class="code-line">    {</span>
+<span class="line-numbers">47</span><span class="code-line">        <span class="function">remove_env_var</span>(<span class="variable">env</span>, <span class="variable">args</span>[<span class="variable">i</span>]);</span>
+<span class="line-numbers">48</span><span class="code-line">        <span class="variable">i</span>++;</span>
+<span class="line-numbers">49</span><span class="code-line">    }</span>
+<span class="line-numbers">50</span><span class="code-line">    <span class="keyword">return</span> (<span class="number">0</span>);</span>
+<span class="line-numbers">51</span><span class="code-line">}</span>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔄 Passo a Passo do Unset:</h4>
+                <ol>
+                    <li><strong>Linha 42-43:</strong> Se sem argumentos, não faz nada</li>
+                    <li><strong>Linha 44-49:</strong> Remove cada variável especificada</li>
+                    <li><strong>Linha 47:</strong> Chama função para remover da lista</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- ERROR_HANDLER.C -->
+        <div id="error-handler" class="file-section">
+            <h2>23. ⚠️ error_handler.c - Tratamento de Erros</h2>
+            
+            <div class="explanation">
+                <h4>🎯 Funcionalidade do Error Handler</h4>
+                <p>Centraliza o tratamento e exibição de mensagens de erro do minishell.</p>
+            </div>
+
+            <div class="code-block">
+<span class="line-numbers">15</span><span class="code-line"><span class="type">void</span> <span class="function">print_error</span>(<span class="type">char</span> *<span class="variable">cmd</span>, <span class="type">char</span> *<span class="variable">arg</span>, <span class="type">char</span> *<span class="variable">msg</span>)</span>
+<span class="line-numbers">16</span><span class="code-line">{</span>
+<span class="line-numbers">17</span><span class="code-line">    <span class="function">printf</span>(<span class="string">"minishell: "</span>);</span>
+<span class="line-numbers">18</span><span class="code-line">    <span class="keyword">if</span> (<span class="variable">cmd</span>)</span>
+<span class="line-numbers">19</span><span class="code-line">        <span class="function">printf</span>(<span class="string">"%s: "</span>, <span class="variable">cmd</span>);</span>
+<span class="line-numbers">20</span><span class="code-line">    <span class="keyword">if</span> (<span class="variable">arg</span>)</span>
+<span class="line-numbers">21</span><span class="code-line">        <span class="function">printf</span>(<span class="string">"%s: "</span>, <span class="variable">arg</span>);</span>
+<span class="line-numbers">22</span><span class="code-line">    <span class="keyword">if</span> (<span class="variable">msg</span>)</span>
+<span class="line-numbers">23</span><span class="code-line">        <span class="function">printf</span>(<span class="string">"%s"</span>, <span class="variable">msg</span>);</span>
+<span class="line-numbers">24</span><span class="code-line">    <span class="function">printf</span>(<span class="string">"\n"</span>);</span>
+<span class="line-numbers">25</span><span class="code-line">}</span>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔄 Passo a Passo do Print Error:</h4>
+                <ol>
+                    <li><strong>Linha 17:</strong> Imprime prefixo "minishell: "</li>
+                    <li><strong>Linha 18-19:</strong> Adiciona nome do comando se fornecido</li>
+                    <li><strong>Linha 20-21:</strong> Adiciona argumento se fornecido</li>
+                    <li><strong>Linha 22-23:</strong> Adiciona mensagem se fornecida</li>
+                    <li><strong>Linha 24:</strong> Finaliza com quebra de linha</li>
+                </ol>
+            </div>
+
+            <div class="code-block">
+<span class="line-numbers">27</span><span class="code-line"><span class="type">void</span> <span class="function">syntax_error</span>(<span class="type">char</span> *<span class="variable">token</span>)</span>
+<span class="line-numbers">28</span><span class="code-line">{</span>
+<span class="line-numbers">29</span><span class="code-line">    <span class="function">printf</span>(<span class="string">"minishell: syntax error near unexpected token `%s'\n"</span>, <span class="variable">token</span>);</span>
+<span class="line-numbers">30</span><span class="code-line">}</span>
+            </div>
+
+            <div class="explanation">
+                <h4>⚠️ Erro de Sintaxe (Linhas 27-30)</h4>
+                <p>Exibe mensagem específica para erros de sintaxe com o token problemático.</p>
+            </div>
+        </div>
+
+        <!-- Seção de Lexer Split -->
+        <div class="section">
+            <h2>📁 lexer/lexer_split.c</h2>
+            <p>Funções para dividir a entrada em tokens.</p>
+            
+            <div class="function-block">
+                <h3>🔧 Função: count_words</h3>
+                <div class="code-block">
+                    <pre><code class="language-c">int count_words(char *str)
+{
+    int count = 0;
+    int i = 0;
+    
+    while (str[i])
+    {
+        if (str[i] == '|')
+        {
+            count++;
+            i++;
+        }
+        else if (str[i] == '<' || str[i] == '>')
+        {
+            count++;
+            i = handle_redd(str, i);
+        }
+        else if (str[i] == '\'' || str[i] == '"')
+        {
+            count++;
+            i = handle_q(str, i);
+        }
+        else if (str[i] != ' ' && str[i] != '\t')
+        {
+            count++;
+            i = skip_words(str, i);
+        }
+        else
+            i++;
+    }
+    return (count);
+}</code></pre>
+                </div>
+                <div class="explanation">
+                    <p><strong>Explicação linha por linha:</strong></p>
+                    <ul>
+                        <li><strong>Linha 1:</strong> Declara função que conta o número de tokens na string</li>
+                        <li><strong>Linha 3-4:</strong> Inicializa contador de palavras e índice</li>
+                        <li><strong>Linha 6:</strong> Loop principal que percorre toda a string</li>
+                        <li><strong>Linha 8-12:</strong> Se encontra pipe '|', incrementa contador e avança</li>
+                        <li><strong>Linha 13-17:</strong> Se encontra redirecionamento, conta e pula usando handle_redd</li>
+                        <li><strong>Linha 18-22:</strong> Se encontra aspas, conta e pula usando handle_q</li>
+                        <li><strong>Linha 23-27:</strong> Se não é espaço/tab, conta palavra e pula usando skip_words</li>
+                        <li><strong>Linha 28-29:</strong> Se é espaço, apenas avança o índice</li>
+                        <li><strong>Linha 30:</strong> Retorna o total de tokens encontrados</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="function-block">
+                <h3>🔧 Função: ms_split</h3>
+                <div class="code-block">
+                    <pre><code class="language-c">char **ms_split(char *str)
+{
+    char **result;
+    int word_count;
+    int i = 0;
+    int j = 0;
+    
+    if (!str)
+        return (NULL);
+    word_count = count_words(str);
+    result = malloc(sizeof(char *) * (word_count + 1));
+    if (!result)
+        return (NULL);
+    while (str[i] && j < word_count)
+    {
+        if (str[i] == '|')
+            result[j++] = copy_notwords(str, &i, '|');
+        else if (str[i] == '<' || str[i] == '>')
+            result[j++] = copy_notwords(str, &i, str[i]);
+        else if (str[i] == '\'' || str[i] == '"')
+            result[j++] = copy_tokens(str, &i);
+        else if (str[i] != ' ' && str[i] != '\t')
+            result[j++] = copy_tokens(str, &i);
+        else
+            i++;
+    }
+    result[j] = NULL;
+    return (result);
+}</code></pre>
+                </div>
+                <div class="explanation">
+                    <p><strong>Explicação linha por linha:</strong></p>
+                    <ul>
+                        <li><strong>Linha 1:</strong> Função principal que divide string em array de tokens</li>
+                        <li><strong>Linha 3-6:</strong> Declara variáveis: array resultado, contador, índices</li>
+                        <li><strong>Linha 8-9:</strong> Verifica se string é válida</li>
+                        <li><strong>Linha 10:</strong> Conta quantos tokens existem na string</li>
+                        <li><strong>Linha 11-13:</strong> Aloca memória para array de strings (+1 para NULL)</li>
+                        <li><strong>Linha 14:</strong> Loop principal que processa cada caractere</li>
+                        <li><strong>Linha 16-17:</strong> Se é pipe, copia como token especial</li>
+                        <li><strong>Linha 18-19:</strong> Se é redirecionamento, copia como token especial</li>
+                        <li><strong>Linha 20-21:</strong> Se é aspas, copia token com aspas</li>
+                        <li><strong>Linha 22-23:</strong> Se não é espaço, copia token normal</li>
+                        <li><strong>Linha 24-25:</strong> Se é espaço, apenas avança</li>
+                        <li><strong>Linha 26-27:</strong> Termina array com NULL e retorna</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de Lexer Utils -->
+        <div class="section">
+            <h2>📁 lexer/lexer_utils.c</h2>
+            <p>Funções auxiliares para o lexer.</p>
+            
+            <div class="function-block">
+                <h3>🔧 Função: skip_words</h3>
+                <div class="code-block">
+                    <pre><code class="language-c">int skip_words(char *str, int i)
+{
+    while (str[i] && str[i] != ' ' && str[i] != '\t' && str[i] != '|' 
+           && str[i] != '<' && str[i] != '>' && str[i] != '\'' && str[i] != '"')
+        i++;
+    return (i);
+}</code></pre>
+                </div>
+                <div class="explanation">
+                    <p><strong>Explicação linha por linha:</strong></p>
+                    <ul>
+                        <li><strong>Linha 1:</strong> Função que pula caracteres de uma palavra normal</li>
+                        <li><strong>Linha 3-4:</strong> Loop que continua enquanto não encontra delimitadores</li>
+                        <li><strong>Linha 5:</strong> Incrementa índice para pular o caractere atual</li>
+                        <li><strong>Linha 6:</strong> Retorna nova posição após pular a palavra</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="function-block">
+                <h3>🔧 Função: handle_q</h3>
+                <div class="code-block">
+                    <pre><code class="language-c">int handle_q(char *str, int i)
+{
+    char quote = str[i];
+    i++;
+    while (str[i] && str[i] != quote)
+        i++;
+    if (str[i] == quote)
+        i++;
+    return (i);
+}</code></pre>
+                </div>
+                <div class="explanation">
+                    <p><strong>Explicação linha por linha:</strong></p>
+                    <ul>
+                        <li><strong>Linha 1:</strong> Função que pula seções entre aspas</li>
+                        <li><strong>Linha 3:</strong> Guarda o tipo de aspas (simples ou duplas)</li>
+                        <li><strong>Linha 4:</strong> Avança para depois da aspas de abertura</li>
+                        <li><strong>Linha 5-6:</strong> Loop que pula até encontrar aspas de fechamento</li>
+                        <li><strong>Linha 7-8:</strong> Se encontrou aspas de fechamento, pula ela também</li>
+                        <li><strong>Linha 9:</strong> Retorna posição após as aspas</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de Executor Pipeline -->
+        <div class="section">
+            <h2>📁 executor/executor_pipeline.c</h2>
+            <p>Execução de comandos em pipeline.</p>
+            
+            <div class="function-block">
+                <h3>🔧 Função: setup_child_pipes</h3>
+                <div class="code-block">
+                    <pre><code class="language-c">void setup_child_pipes(int **pipes, int cmd_index, int cmd_count)
+{
+    if (cmd_index > 0)
+    {
+        dup2(pipes[cmd_index - 1][0], STDIN_FILENO);
+        close(pipes[cmd_index - 1][0]);
+        close(pipes[cmd_index - 1][1]);
+    }
+    if (cmd_index < cmd_count - 1)
+    {
+        dup2(pipes[cmd_index][1], STDOUT_FILENO);
+        close(pipes[cmd_index][0]);
+        close(pipes[cmd_index][1]);
+    }
+}</code></pre>
+                </div>
+                <div class="explanation">
+                    <p><strong>Explicação linha por linha:</strong></p>
+                    <ul>
+                        <li><strong>Linha 1:</strong> Função que configura pipes para processo filho</li>
+                        <li><strong>Linha 3-7:</strong> Se não é o primeiro comando, redireciona entrada</li>
+                        <li><strong>Linha 4:</strong> Duplica pipe de leitura para stdin</li>
+                        <li><strong>Linha 5-6:</strong> Fecha ambas extremidades do pipe anterior</li>
+                        <li><strong>Linha 8-13:</strong> Se não é o último comando, redireciona saída</li>
+                        <li><strong>Linha 10:</strong> Duplica pipe de escrita para stdout</li>
+                        <li><strong>Linha 11-12:</strong> Fecha ambas extremidades do pipe atual</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de Executor Single -->
+        <div class="section">
+            <h2>📁 executor/executor_single.c</h2>
+            <p>Execução de comandos únicos.</p>
+            
+            <div class="function-block">
+                <h3>🔧 Função: execute_single_command</h3>
+                <div class="code-block">
+                    <pre><code class="language-c">int execute_single_command(t_cmd *cmd, t_env **env, int *last_exit)
+{
+    if (is_builtin(cmd->cmd))
+        return (execute_builtin_with_redir(cmd, env, last_exit));
+    else
+        return (execute_external_command(cmd, *env, last_exit));
+}</code></pre>
+                </div>
+                <div class="explanation">
+                    <p><strong>Explicação linha por linha:</strong></p>
+                    <ul>
+                        <li><strong>Linha 1:</strong> Função principal para executar comando único</li>
+                        <li><strong>Linha 3-4:</strong> Se é builtin, executa com redirecionamentos</li>
+                        <li><strong>Linha 5-6:</strong> Se não é builtin, executa como comando externo</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="function-block">
+                <h3>🔧 Função: execute_external_command</h3>
+                <div class="code-block">
+                    <pre><code class="language-c">int execute_external_command(t_cmd *cmd, t_env *env, int *last_exit)
+{
+    pid_t pid;
+    int status;
+    
+    pid = fork();
+    if (pid == -1)
+        return (handle_fork_error());
+    if (pid == 0)
+        execute_child_process(cmd, env);
+    else
+    {
+        waitpid(pid, &status, 0);
+        if (WIFEXITED(status))
+            *last_exit = WEXITSTATUS(status);
+        else if (WIFSIGNALED(status))
+            *last_exit = 128 + WTERMSIG(status);
+    }
+    return (*last_exit);
+}</code></pre>
+                </div>
+                <div class="explanation">
+                    <p><strong>Explicação linha por linha:</strong></p>
+                    <ul>
+                        <li><strong>Linha 1:</strong> Função para executar comando externo</li>
+                        <li><strong>Linha 3-4:</strong> Declara variáveis para PID e status</li>
+                        <li><strong>Linha 6:</strong> Cria processo filho com fork()</li>
+                        <li><strong>Linha 7-8:</strong> Se fork falhou, trata erro</li>
+                        <li><strong>Linha 9-10:</strong> Se é processo filho, executa comando</li>
+                        <li><strong>Linha 11-18:</strong> Se é processo pai, espera filho terminar</li>
+                        <li><strong>Linha 13:</strong> Espera processo filho terminar</li>
+                        <li><strong>Linha 14-15:</strong> Se terminou normalmente, pega código de saída</li>
+                        <li><strong>Linha 16-17:</strong> Se terminou por sinal, calcula código especial</li>
+                        <li><strong>Linha 19:</strong> Retorna código de saída</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de Executor Redirections -->
+        <div class="section">
+            <h2>📁 executor/executor_redirections.c</h2>
+            <p>Gerenciamento de redirecionamentos.</p>
+            
+            <div class="function-block">
+                <h3>🔧 Função: handle_redirections</h3>
+                <div class="code-block">
+                    <pre><code class="language-c">int handle_redirections(t_redir *redir_list)
+{
+    t_redir *current = redir_list;
+    
+    while (current)
+    {
+        if (current->type == REDIR_IN)
+        {
+            if (handle_input_redir(current->file) == -1)
+                return (-1);
+        }
+        else if (current->type == REDIR_OUT)
+        {
+            if (handle_output_redir(current->file) == -1)
+                return (-1);
+        }
+        else if (current->type == REDIR_APPEND)
+        {
+            if (handle_append_redir(current->file) == -1)
+                return (-1);
+        }
+        current = current->next;
+    }
+    return (0);
+}</code></pre>
+                </div>
+                <div class="explanation">
+                    <p><strong>Explicação linha por linha:</strong></p>
+                    <ul>
+                        <li><strong>Linha 1:</strong> Função principal para processar redirecionamentos</li>
+                        <li><strong>Linha 3:</strong> Ponteiro para percorrer lista de redirecionamentos</li>
+                        <li><strong>Linha 5:</strong> Loop que processa cada redirecionamento</li>
+                        <li><strong>Linha 7-11:</strong> Se é redirecionamento de entrada, chama handle_input_redir</li>
+                        <li><strong>Linha 12-16:</strong> Se é redirecionamento de saída, chama handle_output_redir</li>
+                        <li><strong>Linha 17-21:</strong> Se é append, chama handle_append_redir</li>
+                        <li><strong>Linha 22:</strong> Avança para próximo redirecionamento</li>
+                        <li><strong>Linha 24:</strong> Retorna 0 se todos redirecionamentos foram bem-sucedidos</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="function-block">
+                <h3>🔧 Função: handle_input_redir</h3>
+                <div class="code-block">
+                    <pre><code class="language-c">int handle_input_redir(char *filename)
+{
+    int fd;
+    
+    fd = open(filename, O_RDONLY);
+    if (fd == -1)
+    {
+        print_error("minishell", filename, "No such file or directory");
+        return (-1);
+    }
+    if (dup2(fd, STDIN_FILENO) == -1)
+    {
+        close(fd);
+        return (-1);
+    }
+    close(fd);
+    return (0);
+}</code></pre>
+                </div>
+                <div class="explanation">
+                    <p><strong>Explicação linha por linha:</strong></p>
+                    <ul>
+                        <li><strong>Linha 1:</strong> Função para redirecionamento de entrada</li>
+                        <li><strong>Linha 5:</strong> Abre arquivo para leitura</li>
+                        <li><strong>Linha 6-9:</strong> Se falhou ao abrir, mostra erro e retorna -1</li>
+                        <li><strong>Linha 10-14:</strong> Duplica file descriptor para stdin</li>
+                        <li><strong>Linha 15:</strong> Fecha file descriptor original</li>
+                        <li><strong>Linha 16:</strong> Retorna 0 se bem-sucedido</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de Executor Utils -->
+        <div class="section">
+            <h2>📁 executor/executor_utils.c</h2>
+            <p>Utilitários para execução de comandos externos.</p>
+            
+            <div class="function-block">
+                <h3>🔧 Função: find_executable</h3>
+                <div class="code-block">
+                    <pre><code class="language-c">char *find_executable(char *cmd, t_env *env)
+{
+    char *path_env;
+    char **paths;
+    char *full_path;
+    int i;
+    
+    if (ft_strchr(cmd, '/'))
+        return (ft_strdup(cmd));
+    path_env = get_path_env(env);
+    if (!path_env)
+        return (NULL);
+    paths = ft_split(path_env, ':');
+    if (!paths)
+        return (NULL);
+    i = 0;
+    while (paths[i])
+    {
+        full_path = check_path_access(paths[i], cmd);
+        if (full_path)
+        {
+            free_paths_array(paths);
+            return (full_path);
+        }
+        i++;
+    }
+    free_paths_array(paths);
+    return (NULL);
+}</code></pre>
+                </div>
+                <div class="explanation">
+                    <p><strong>Explicação linha por linha:</strong></p>
+                    <ul>
+                        <li><strong>Linha 1:</strong> Função que encontra caminho completo do executável</li>
+                        <li><strong>Linha 3-6:</strong> Declara variáveis para PATH, array de caminhos, etc.</li>
+                        <li><strong>Linha 8-9:</strong> Se comando tem '/', retorna cópia do comando</li>
+                        <li><strong>Linha 10-12:</strong> Obtém variável PATH do ambiente</li>
+                        <li><strong>Linha 13-15:</strong> Divide PATH em array de caminhos</li>
+                        <li><strong>Linha 16-24:</strong> Loop que testa cada caminho do PATH</li>
+                        <li><strong>Linha 18:</strong> Verifica se comando existe neste caminho</li>
+                        <li><strong>Linha 19-23:</strong> Se encontrou, libera memória e retorna caminho</li>
+                        <li><strong>Linha 25-26:</strong> Se não encontrou, libera memória e retorna NULL</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="function-block">
+                <h3>🔧 Função: get_path_env</h3>
+                <div class="code-block">
+                    <pre><code class="language-c">char *get_path_env(t_env *env)
+{
+    t_env *current = env;
+    
+    while (current)
+    {
+        if (ft_strncmp(current->key, "PATH", 4) == 0 && current->key[4] == '\0')
+            return (current->value);
+        current = current->next;
+    }
+    return (NULL);
+}</code></pre>
+                </div>
+                <div class="explanation">
+                    <p><strong>Explicação linha por linha:</strong></p>
+                    <ul>
+                        <li><strong>Linha 1:</strong> Declara a função que retorna o valor da variável PATH</li>
+                        <li><strong>Linha 3:</strong> Inicializa ponteiro para percorrer a lista de variáveis</li>
+                        <li><strong>Linha 5-10:</strong> Loop que procura pela variável "PATH" na lista</li>
+                        <li><strong>Linha 7-8:</strong> Verifica se a chave é exatamente "PATH" e retorna o valor</li>
+                        <li><strong>Linha 11:</strong> Retorna NULL se PATH não for encontrado</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="file-section">
+            <h2>🎯 Resumo da Arquitetura</h2>
+            <div class="explanation">
+                <h4>📊 Fluxo de Execução Completo:</h4>
+                <ol>
+                    <li><strong>Entrada:</strong> O usuário digita um comando</li>
+                    <li><strong>Lexer:</strong> Divide a entrada em tokens</li>
+                    <li><strong>Parser:</strong> Converte tokens em estruturas de comando</li>
+                    <li><strong>Expander:</strong> Expande variáveis de ambiente</li>
+                    <li><strong>Executor:</strong> Executa os comandos (builtins ou externos)</li>
+                    <li><strong>Cleanup:</strong> Libera memória e prepara para o próximo comando</li>
+                </ol>
+                
+                <h4>🔧 Componentes Principais:</h4>
+                <ul>
+                    <li><strong>main.c:</strong> Loop principal e coordenação geral</li>
+                    <li><strong>signals.c:</strong> Gerenciamento de sinais do sistema</li>
+                    <li><strong>lexer/:</strong> Análise lexical e tokenização</li>
+                    <li><strong>parser/:</strong> Análise sintática e construção de AST</li>
+                    <li><strong>expander/:</strong> Expansão de variáveis e wildcards</li>
+                    <li><strong>executor/:</strong> Execução de comandos e pipelines</li>
+                    <li><strong>builtins/:</strong> Comandos internos do shell</li>
+                    <li><strong>utils/:</strong> Funções auxiliares e utilitários</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Adiciona funcionalidade de navegação suave
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Destaca a seção atual na navegação
+        window.addEventListener('scroll', function() {
+            let current = '';
+            document.querySelectorAll('.file-section').forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 60) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            document.querySelectorAll('.navigation a').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
