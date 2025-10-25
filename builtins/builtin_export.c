@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtin_export.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
+/*   By: dde-lima <dde-lima@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/23 17:22:34 by dde-lima          #+#    #+#             */
-/*   Updated: 2025/10/22 09:42:02 by ldos_sa2         ###   ########.fr       */
+/*   Updated: 2025/10/19 22:43:15 by dde-lima         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ static int	add_or_update_env(t_env **env, char *key, char *value)
 		}
 		current = current->next;
 	}
+	
 	new_env = malloc(sizeof(t_env));
 	if (!new_env)
 		return (1);
@@ -83,6 +84,7 @@ int	builtin_export(char **args, t_env **env)
 		print_export_env(*env);
 		return (0);
 	}
+	
 	i = 1;
 	while (args[i])
 	{

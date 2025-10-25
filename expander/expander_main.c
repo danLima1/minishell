@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expander_main.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
+/*   By: dde-lima <dde-lima@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 11:46:32 by dde-lima          #+#    #+#             */
-/*   Updated: 2025/10/22 09:51:10 by ldos_sa2         ###   ########.fr       */
+/*   Updated: 2025/01/15 16:11:17 by dde-lima         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,119 +108,3 @@ char	*expand_string(char *str, t_env *env, int last_exit)
 	result[j] = '\0';
 	return (result);
 }
-
-/*static char	*get_var_name(char *str, int *i)
-{
-	int		start;
-	int		len;
-	char	*var_name;
-
-	start = *i;
-	if (str[*i] == '?')
-	{
-		(*i)++;
-		return (ft_strdup("?"));
-	}
-	while (str[*i] && (ft_isalnum(str[*i]) || str[*i] == '_'))
-		(*i)++;
-	len = *i - start;
-	var_name = malloc(len + 1);
-	if (!var_name)
-		return (NULL);
-	ft_strncpy(var_name, str + start, len);
-	var_name[len] = '\0';
-	return (var_name);
-}
-
-static char	*expand_variable(char *var_name, t_exp *exp)
-{
-	t_env	*current;
-
-	if (ft_strcmp(var_name, "?") == 0)
-		return (ft_itoa(exp->last_exit));
-	current = exp->env;
-	while (current)
-	{
-		if (ft_strcmp(current->key, var_name) == 0)
-			return (ft_strdup(current->value));
-		current = current->next;
-	}
-	return (ft_strdup(""));
-}
-
-static char	*get_name_value(char *str, t_indexes *ij, t_exp *exp)
-{
-	char	*var_name;
-	char	*var_value;
-	int		*i;
-
-	i = ij->i;
-	(*i)++;
-	var_name = get_var_name(str, i);
-	if (!var_name)
-		return (NULL);
-	var_value = expand_variable(var_name, exp);
-	free(var_name);
-	return (var_value);
-}
-
-static int	process_variable(char *str, char *res, t_exp *exp, t_indexes *ij)
-{
-	char	*var_value;
-	int		*j;
-
-	j = ij->j;
-	var_value = get_name_value(str, ij, exp);
-	if (!var_value)
-		return (0);
-	ft_strcpy(res + *j, var_value);
-	*j += ft_strlen(var_value);
-	free(var_value);
-	return (1);
-}
-
-static t_exp	*init_exp(char *str, t_indexes *ij, t_env *env, int last_exit)
-{
-	t_exp		*exp;
-	int			i;
-	int			j;
-
-	exp->result = init_result_buffer(str);
-	if (!exp->result)
-		return (NULL);
-	i = 0;
-	j = 0;
-	ij->i = i;
-	ij->j = j;
-	exp->env = env;
-	exp->last_exit = last_exit;
-
-}
-
-char	*expand_string(char *str, t_env *env, int last_exit)
-{
-	t_exp		*exp;
-	t_indexes	*ij;
-	char		*result;
-	int			i;
-	int			j;
-
-	result = init_result_buffer(str);
-	if (!result)
-		return (NULL);
-	while (str[i])
-	{
-		if (str[i] == '$' && str[i + 1])
-		{
-			if(!process_variable(str, result, &exp, &ij))
-			{
-				free(result);
-				return (NULL);
-			}
-		}
-		else
-			result[j++] = str[i++];
-	}
-	result[j] = '\0';
-	return (result);
-}*/

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_utils.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
+/*   By: dde-lima <dde-lima@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:50:17 by dde-lima          #+#    #+#             */
-/*   Updated: 2025/10/22 06:22:43 by ldos_sa2         ###   ########.fr       */
+/*   Updated: 2025/09/15 11:43:32 by dde-lima         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,10 +81,10 @@ int	count_commands(t_cmd *cmd_list)
 
 	count = 0;
 	current = cmd_list;
-	if (current->args)
+	while (current)
 	{
-		while (current->args[count])
-			count++;
+		count++;
+		current = current->next;
 	}
 	return (count);
 }

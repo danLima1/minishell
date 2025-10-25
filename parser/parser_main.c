@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_main.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
+/*   By: dde-lima <dde-lima@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 14:08:43 by dde-lima          #+#    #+#             */
-/*   Updated: 2025/10/22 06:25:55 by ldos_sa2         ###   ########.fr       */
+/*   Updated: 2025/08/27 16:53:23 by dde-lima         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,12 @@ static void	add_arg_to_cmd(t_cmd *cmd, char *arg, t_env *env, int last_exit)
 	int		count;
 	int		i;
 
-	count = count_commands(cmd);
+	count = 0;
+	if (cmd->args)
+	{
+		while (cmd->args[count])
+			count++;
+	}
 	new_args = malloc(sizeof(char *) * (count + 2));
 	if (!new_args)
 		return ;
@@ -43,10 +48,7 @@ static void	add_arg_to_cmd(t_cmd *cmd, char *arg, t_env *env, int last_exit)
 		i++;
 	}
 	expanded_arg = expand_string(arg, env, last_exit);
-	if (expanded_arg)
-		new_args[count] = expanded_arg;
-	else
-		new_args[count] = ft_strdup(arg);
+	new_args[count] = expanded_arg ? expanded_arg : ft_strdup(arg);
 	new_args[count + 1] = NULL;
 	if (cmd->args)
 		free(cmd->args);
@@ -64,6 +66,7 @@ static void	add_redir_to_cmd(t_cmd *cmd, t_token_type type, char *file)
 	new_redir->type = type;
 	new_redir->file = ft_strdup(file);
 	new_redir->next = NULL;
+	
 	if (!cmd->redirs)
 		cmd->redirs = new_redir;
 	else
@@ -95,8 +98,8 @@ t_cmd	*parse_tokens(t_token *tokens, t_env *env, int last_exit)
 			current_cmd->next = create_cmd();
 			current_cmd = current_cmd->next;
 		}
-		else if (token->type == TOKEN_REDIR_IN || token->type == TOKEN_REDIR_OUT
-			|| token->type == TOKEN_REDIR_APPEND || token->type == TOKEN_HEREDOC)
+		else if (token->type == TOKEN_REDIR_IN || token->type == TOKEN_REDIR_OUT ||
+				 token->type == TOKEN_REDIR_APPEND || token->type == TOKEN_HEREDOC)
 		{
 			if (token->next && token->next->type == TOKEN_WORD)
 			{

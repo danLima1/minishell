@@ -18,8 +18,8 @@ UTILS_DIR = utils
 SRCS = main.c \
 	lexer/lexer_main.c lexer/lexer_split.c lexer/lexer_tokens.c lexer/lexer_utils.c \
 	parser/parser_main.c parser/parser_utils.c \
-	expander/expander_main.c expander/expender_utils.c \
-	executor/executor_main.c executor/executor_utils.c executor/executor_redirections.c executor/executor_pipeline.c executor/executor_single.c executor/executor_handles.c\
+	expander/expander_main.c \
+	executor/executor_main.c executor/executor_utils.c executor/executor_redirections.c executor/executor_pipeline.c executor/executor_single.c \
 	builtins/builtin_echo.c builtins/builtin_pwd.c builtins/builtin_env.c builtins/builtin_exit.c builtins/builtin_cd.c builtins/builtin_export.c builtins/builtin_unset.c \
 	utils/env_utils.c utils/node_utils.c utils/string_utils.c \
 	error/error_handler.c \
