@@ -6,7 +6,7 @@
 /*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 08:18:07 by ldos_sa2          #+#    #+#             */
-/*   Updated: 2025/10/06 21:41:40 by ldos_sa2         ###   ########.fr       */
+/*   Updated: 2025/10/25 15:18:24 by ldos_sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,13 +98,13 @@ void		print_tokens(t_token *tokens);
 int			validate_tokens(t_token *tokens);
 
 /* Parser  */
-t_cmd		*parse_tokens(t_token *tokens, t_env *env, int last_exit);
+t_cmd		*parse_tokens(t_token *tokens, t_shell *shell);
 void		free_cmd_list(t_cmd *cmd_list);
 void		print_cmd_list(t_cmd *cmd_list);
-int			count_commands(t_cmd *cmd_list);
+int			count_commands(t_cmd *cmd);
 
 /* Expander  */
-char		*expand_string(char *str, t_env *env, int last_exit);
+char		*expand_string(char *str, t_shell *shell);
 
 /* Executor  */
 int			execute_command(t_cmd *cmd, t_shell *shell);
@@ -115,6 +115,8 @@ int			execute_pipeline(t_cmd *cmd_list, t_shell *shell);
 char		*find_executable(char *cmd, t_env *env);
 char		*get_path_env(t_env *env);
 int			handle_redirections(t_redir *redirs);
+void		setup_child_pipes(int prev_fd, int *pipe_fd, t_cmd *current);
+void		execute_child_process(t_cmd *current, t_shell *shell);
 
 /* Builtins  */
 int			builtin_echo(char **args);

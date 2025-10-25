@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_main.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dde-lima <dde-lima@student.42.rio>         +#+  +:+       +#+        */
+/*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 14:08:43 by dde-lima          #+#    #+#             */
-/*   Updated: 2025/08/27 16:53:23 by dde-lima         ###   ########.fr       */
+/*   Updated: 2025/10/25 15:06:40 by ldos_sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,19 +25,14 @@ static t_cmd	*create_cmd(void)
 	return (cmd);
 }
 
-static void	add_arg_to_cmd(t_cmd *cmd, char *arg, t_env *env, int last_exit)
+static void	add_arg_to_cmd(t_cmd *cmd, char *arg, t_shell *shell)
 {
 	char	**new_args;
 	char	*expanded_arg;
 	int		count;
 	int		i;
 
-	count = 0;
-	if (cmd->args)
-	{
-		while (cmd->args[count])
-			count++;
-	}
+	count = count_commands(cmd);
 	new_args = malloc(sizeof(char *) * (count + 2));
 	if (!new_args)
 		return ;
@@ -47,8 +42,11 @@ static void	add_arg_to_cmd(t_cmd *cmd, char *arg, t_env *env, int last_exit)
 		new_args[i] = cmd->args[i];
 		i++;
 	}
-	expanded_arg = expand_string(arg, env, last_exit);
-	new_args[count] = expanded_arg ? expanded_arg : ft_strdup(arg);
+	expanded_arg = expand_string(arg, shell);
+	if (expanded_arg)
+		new_args[count] = expanded_arg;
+	else
+		expanded_arg = ft_strdup(arg);
 	new_args[count + 1] = NULL;
 	if (cmd->args)
 		free(cmd->args);
@@ -66,7 +64,6 @@ static void	add_redir_to_cmd(t_cmd *cmd, t_token_type type, char *file)
 	new_redir->type = type;
 	new_redir->file = ft_strdup(file);
 	new_redir->next = NULL;
-	
 	if (!cmd->redirs)
 		cmd->redirs = new_redir;
 	else
@@ -78,36 +75,41 @@ static void	add_redir_to_cmd(t_cmd *cmd, t_token_type type, char *file)
 	}
 }
 
-t_cmd	*parse_tokens(t_token *tokens, t_env *env, int last_exit)
+static void	token_arg(t_token *t, t_shell *shell, t_cmd *current_cmd)
+{
+	while (t)
+	{
+		if (t->type == TOKEN_WORD)
+			add_arg_to_cmd(current_cmd, t->value, shell);
+		else if (t->type == TOKEN_PIPE)
+		{
+			current_cmd->next = create_cmd();
+			current_cmd = current_cmd->next;
+		}
+		else if (t->type == TOKEN_REDIR_IN || t->type == TOKEN_REDIR_OUT
+			|| t->type == TOKEN_REDIR_APPEND || t->type == TOKEN_HEREDOC)
+		{
+			if (t->next && t->next->type == TOKEN_WORD)
+			{
+				add_redir_to_cmd(current_cmd, t->type, t->next->value);
+				t = t->next;
+			}
+		}
+		t = t->next;
+	}
+}
+
+t_cmd	*parse_tokens(t_token *tokens, t_shell *shell)
 {
 	t_cmd	*cmd_list;
 	t_cmd	*current_cmd;
-	t_token	*token;
+	t_token	*t;
 
 	if (!tokens)
 		return (NULL);
 	cmd_list = create_cmd();
 	current_cmd = cmd_list;
-	token = tokens;
-	while (token)
-	{
-		if (token->type == TOKEN_WORD)
-			add_arg_to_cmd(current_cmd, token->value, env, last_exit);
-		else if (token->type == TOKEN_PIPE)
-		{
-			current_cmd->next = create_cmd();
-			current_cmd = current_cmd->next;
-		}
-		else if (token->type == TOKEN_REDIR_IN || token->type == TOKEN_REDIR_OUT ||
-				 token->type == TOKEN_REDIR_APPEND || token->type == TOKEN_HEREDOC)
-		{
-			if (token->next && token->next->type == TOKEN_WORD)
-			{
-				add_redir_to_cmd(current_cmd, token->type, token->next->value);
-				token = token->next;
-			}
-		}
-		token = token->next;
-	}
+	t = tokens;
+	token_arg(t, shell, current_cmd);
 	return (cmd_list);
 }

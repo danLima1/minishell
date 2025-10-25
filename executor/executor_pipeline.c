@@ -3,48 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   executor_pipeline.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dde-lima <dde-lima@student.42.rio>         +#+  +:+       +#+        */
+/*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 17:44:52 by dde-lima          #+#    #+#             */
-/*   Updated: 2025/01/15 14:32:36 by dde-lima         ###   ########.fr       */
+/*   Updated: 2025/10/25 15:20:05 by ldos_sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
-
-static void	setup_child_pipes(int prev_fd, int *pipe_fd, t_cmd *current)
-{
-	if (prev_fd != -1)
-	{
-		dup2(prev_fd, STDIN_FILENO);
-		close(prev_fd);
-	}
-	if (current->next)
-	{
-		dup2(pipe_fd[1], STDOUT_FILENO);
-		close(pipe_fd[0]);
-		close(pipe_fd[1]);
-	}
-}
-
-static void	execute_child_process(t_cmd *current, t_shell *shell)
-{
-	char	*executable;
-
-	if (handle_redirections(current->redirs) != 0)
-		exit(1);
-	if (is_builtin(current->args[0]))
-		exit(execute_builtin(current->args, shell));
-	else
-	{
-		executable = find_executable(current->args[0], shell->env);
-		if (execve(executable, current->args, NULL) == -1)
-		{
-			perror("minishell");
-			exit(127);
-		}
-	}
-}
 
 static int	handle_parent_process(int prev_fd, int *pipe_fd, t_cmd *current)
 {
@@ -55,7 +21,7 @@ static int	handle_parent_process(int prev_fd, int *pipe_fd, t_cmd *current)
 	return (0);
 }
 
-static int	handle_fork_process(t_cmd *current, t_shell *shell, int *pipe_fd, int prev_fd)
+static int	h_fork_p(t_cmd *current, t_shell *shell, int *pipe_fd, int prev_fd)
 {
 	pid_t	pid;
 
@@ -75,7 +41,7 @@ static int	handle_fork_process(t_cmd *current, t_shell *shell, int *pipe_fd, int
 	return (0);
 }
 
-static int	process_pipeline_command(t_cmd *current, t_shell *shell, int *prev_fd)
+static int	process_pipe_cmd(t_cmd *current, t_shell *shell, int *prev_fd)
 {
 	int		pipe_fd[2];
 	int		old_prev_fd;
@@ -88,7 +54,7 @@ static int	process_pipeline_command(t_cmd *current, t_shell *shell, int *prev_fd
 	}
 	if (current->next)
 		*prev_fd = pipe_fd[0];
-	return (handle_fork_process(current, shell, pipe_fd, old_prev_fd));
+	return (h_fork_p(current, shell, pipe_fd, old_prev_fd));
 }
 
 static int	wait_for_all_processes(t_cmd *cmd_list)
@@ -117,7 +83,7 @@ int	execute_pipeline(t_cmd *cmd_list, t_shell *shell)
 	current = cmd_list;
 	while (current)
 	{
-		if (process_pipeline_command(current, shell, &prev_fd) != 0)
+		if (process_pipe_cmd(current, shell, &prev_fd) != 0)
 			return (1);
 		current = current->next;
 	}

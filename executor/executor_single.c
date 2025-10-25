@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   executor_single.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dde-lima <dde-lima@student.42.rio>         +#+  +:+       +#+        */
+/*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/18 16:17:32 by dde-lima          #+#    #+#             */
-/*   Updated: 2025/10/19 19:32:18 by dde-lima         ###   ########.fr       */
+/*   Updated: 2025/10/25 15:21:19 by ldos_sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ static int	execute_builtin_with_redir(t_cmd *cmd, t_shell *shell)
 	return (result);
 }
 
-static void	execute_child_process(t_cmd *cmd, char *executable)
+static void	exe_child_process(t_cmd *cmd, char *executable)
 {
 	if (handle_redirections(cmd->redirs) != 0)
 		exit(1);
@@ -56,7 +56,7 @@ static int	execute_external_command(t_cmd *cmd, t_shell *shell)
 	pid = fork();
 	if (pid == 0)
 	{
-		execute_child_process(cmd, executable);
+		exe_child_process(cmd, executable);
 	}
 	else if (pid > 0)
 	{
