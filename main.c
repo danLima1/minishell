@@ -6,7 +6,7 @@
 /*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 08:18:07 by ldos_sa2          #+#    #+#             */
-/*   Updated: 2025/10/25 14:32:10 by ldos_sa2         ###   ########.fr       */
+/*   Updated: 2025/10/25 17:12:30 by ldos_sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ static void	process_input(char *input, t_shell *shell)
 	tokens = lexer_tokenize(input);
 	if (tokens && validate_tokens(tokens))
 	{
+		free_nodelist(tokens);
 		commands = parse_tokens(tokens, shell);
 		if (commands)
 		{
@@ -29,7 +30,7 @@ static void	process_input(char *input, t_shell *shell)
 			free_cmd_list(commands);
 		}
 	}
-	free_nodelist(tokens);
+	//free_nodelist(tokens);
 }
 
 int	main(int argc, char **argv, char **envp)
