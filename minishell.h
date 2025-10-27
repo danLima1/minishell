@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
+/*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 08:18:07 by ldos_sa2          #+#    #+#             */
-/*   Updated: 2025/10/26 22:33:52 by ldos-sa2         ###   ########.fr       */
+/*   Updated: 2025/10/27 01:31:58 by ldos_sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,7 +124,7 @@ void		execute_child_process(t_cmd *current, t_shell *shell);
 int			builtin_echo(char **args);
 int			builtin_pwd(char **args);
 int			builtin_env(char **args, t_env *env);
-int			builtin_exit(char **args, t_env *env);
+int			builtin_exit(char **args);
 int			builtin_cd(char **args, t_env *env);
 int			builtin_export(char **args, t_env **env);
 int			builtin_unset(char **args, t_env **env);
