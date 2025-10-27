@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ms_split.c                                         :+:      :+:    :+:   */
+/*   lexer_split.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 14:36:27 by ldos_sa2          #+#    #+#             */
-/*   Updated: 2025/10/06 21:40:31 by ldos_sa2         ###   ########.fr       */
+/*   Updated: 2025/10/25 14:40:48 by ldos_sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ static char	*copy_tokens(const char *s, int *i)
 	else
 	{
 		start = *i;
-		while (s[*i] && s[*i] != ' ' && s[*i] != '|' && s[*i] != '<' 
+		while (s[*i] && s[*i] != ' ' && s[*i] != '|' && s[*i] != '<'
 			&& s[*i] != '>')
 			(*i)++;
 		token = ft_substr(s, start, *i - start);
@@ -106,7 +106,7 @@ char	**ms_split(char const *s)
 		while (s[i] == ' ' || s[i] == '\t')
 			i++;
 		if (!s[i])
-			break;
+			break ;
 		if (s[i] == '|' || s[i] == '<' || s[i] == '>')
 			tokens[j++] = copy_notwords(s, &i);
 		else if (s[i])

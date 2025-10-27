@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expander_main.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dde-lima <dde-lima@student.42.rio>         +#+  +:+       +#+        */
+/*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 11:46:32 by dde-lima          #+#    #+#             */
-/*   Updated: 2025/01/15 16:11:17 by dde-lima         ###   ########.fr       */
+/*   Updated: 2025/10/26 17:54:53 by ldos-sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,16 +51,13 @@ static char	*expand_variable(char *var_name, t_env *env, int last_exit)
 	return (ft_strdup(""));
 }
 
-static int	process_variable(char *str, int *i, char *result, int *j, t_env *env, int last_exit)
+static int	process_var(char *var_name, char *result, int *j, t_shell *shell)
 {
-	char	*var_name;
 	char	*var_value;
 
-	(*i)++;
-	var_name = get_var_name(str, i);
 	if (!var_name)
 		return (0);
-	var_value = expand_variable(var_name, env, last_exit);
+	var_value = expand_variable(var_name, shell->env, shell->exit_status);
 	if (var_value)
 	{
 		ft_strcpy(result + *j, var_value);
@@ -81,9 +78,10 @@ static char	*init_result_buffer(char *str)
 	return (result);
 }
 
-char	*expand_string(char *str, t_env *env, int last_exit)
+char	*expand_string(char *str, t_shell *shell)
 {
 	char	*result;
+	char	*var_name;
 	int		i;
 	int		j;
 
@@ -96,11 +94,10 @@ char	*expand_string(char *str, t_env *env, int last_exit)
 	{
 		if (str[i] == '$' && str[i + 1])
 		{
-			if (!process_variable(str, &i, result, &j, env, last_exit))
-			{
-				free(result);
-				return (NULL);
-			}
+			i++;
+			var_name = get_var_name(str, &i);
+			if (!process_var(var_name, result, &j, shell))
+				return (free(result), NULL);
 		}
 		else
 			result[j++] = str[i++];

@@ -6,7 +6,7 @@
 /*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/22 13:22:45 by ldos_sa2          #+#    #+#             */
-/*   Updated: 2025/10/19 18:27:55 by ldos_sa2         ###   ########.fr       */
+/*   Updated: 2025/10/25 15:24:22 by ldos_sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,19 @@ static int	handle_append_redir(char *file)
 	return (0);
 }
 
+static int	process_redir(t_redir *redir)
+{
+	if (redir->type == TOKEN_REDIR_IN)
+		return (handle_input_redir(redir->file));
+	else if (redir->type == TOKEN_REDIR_OUT)
+		return (handle_output_redir(redir->file));
+	else if (redir->type == TOKEN_REDIR_APPEND)
+		return (handle_append_redir(redir->file));
+	else if (redir->type == TOKEN_HEREDOC)
+		return (handle_heredoc(redir->eof));
+	return (0);
+}
+
 int	handle_redirections(t_redir *redirs)
 {
 	t_redir	*current;
@@ -64,21 +77,8 @@ int	handle_redirections(t_redir *redirs)
 	current = redirs;
 	while (current)
 	{
-		if (current->type == TOKEN_REDIR_IN)
-		{
-			if (handle_input_redir(current->file) != 0)
-				return (1);
-		}
-		else if (current->type == TOKEN_REDIR_OUT)
-		{
-			if (handle_output_redir(current->file) != 0)
-				return (1);
-		}
-		else if (current->type == TOKEN_REDIR_APPEND)
-		{
-			if (handle_append_redir(current->file) != 0)
-				return (1);
-		}
+		if (process_redir(current) != 0)
+			return (1);
 		current = current->next;
 	}
 	return (0);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_utils.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dde-lima <dde-lima@student.42.rio>         +#+  +:+       +#+        */
+/*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:50:17 by dde-lima          #+#    #+#             */
-/*   Updated: 2025/09/15 11:43:32 by dde-lima         ###   ########.fr       */
+/*   Updated: 2025/10/26 22:17:24 by ldos-sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,17 +74,30 @@ void	print_cmd_list(t_cmd *cmd_list)
 	}
 }
 
-int	count_commands(t_cmd *cmd_list)
+int	count_commands(t_cmd *cmd)
 {
 	int		count;
 	t_cmd	*current;
 
 	count = 0;
-	current = cmd_list;
-	while (current)
+	current = cmd;
+	if (current->args)
 	{
-		count++;
-		current = current->next;
+		while (current->args[count])
+			count++;
 	}
 	return (count);
+}
+
+t_cmd	*create_cmd(void)
+{
+	t_cmd	*cmd;
+
+	cmd = malloc(sizeof(t_cmd));
+	if (!cmd)
+		return (NULL);
+	cmd->args = NULL;
+	cmd->redirs = NULL;
+	cmd->next = NULL;
+	return (cmd);
 }

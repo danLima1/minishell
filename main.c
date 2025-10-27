@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
+/*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 08:18:07 by ldos_sa2          #+#    #+#             */
-/*   Updated: 2025/10/06 21:50:44 by ldos_sa2         ###   ########.fr       */
+/*   Updated: 2025/10/26 22:15:56 by ldos-sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ static void	process_input(char *input, t_shell *shell)
 	tokens = lexer_tokenize(input);
 	if (tokens && validate_tokens(tokens))
 	{
-		commands = parse_tokens(tokens, shell->env, shell->exit_status);
+		commands = parse_tokens(tokens, shell);
 		if (commands)
 		{
 			shell->exit_status = execute_command(commands, shell);

@@ -6,6 +6,9 @@ CFLAGS = -Wall -Wextra -Werror -g
 LIBFT_DIR = Libft
 LIBFT = $(LIBFT_DIR)/libft.a
 
+PRINTF_DIR = ft_printf
+PRINTF = $(PRINTF_DIR)/libftprintf.a
+
 SRCDIR = .
 LEXER_DIR = lexer
 PARSER_DIR = parser
@@ -17,22 +20,25 @@ UTILS_DIR = utils
 
 SRCS = main.c \
 	lexer/lexer_main.c lexer/lexer_split.c lexer/lexer_tokens.c lexer/lexer_utils.c \
-	parser/parser_main.c parser/parser_utils.c \
+	parser/parser_main.c parser/parser_utils.c parser/parser_utils2.c \
 	expander/expander_main.c \
-	executor/executor_main.c executor/executor_utils.c executor/executor_redirections.c executor/executor_pipeline.c executor/executor_single.c \
+	executor/executor_main.c executor/executor_utils.c executor/executor_redirections.c executor/executor_heredoc.c executor/executor_pipeline.c executor/executor_single.c executor/executor_utils2.c \
 	builtins/builtin_echo.c builtins/builtin_pwd.c builtins/builtin_env.c builtins/builtin_exit.c builtins/builtin_cd.c builtins/builtin_export.c builtins/builtin_unset.c \
-	utils/env_utils.c utils/node_utils.c utils/string_utils.c \
+	utils/env_utils.c utils/node_utils.c utils/string_utils.c utils/env_array_utils.c \
 	error/error_handler.c \
 	signals.c
 
 OBJS = $(SRCS:.c=.o)
 
-LIBS = -lreadline $(LIBFT)
+LIBS = -lreadline $(LIBFT) $(PRINTF)
 
-all: $(LIBFT) $(NAME)
+all: $(PRINTF) $(LIBFT) $(NAME)
 
 $(LIBFT):
 	make -C $(LIBFT_DIR)
+
+$(PRINTF):
+	make -C $(PRINTF_DIR)
 
 $(NAME): $(OBJS)
 	$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(LIBS)
@@ -43,11 +49,16 @@ $(NAME): $(OBJS)
 clean:
 	rm -f $(OBJS)
 	make -C $(LIBFT_DIR) clean
+	make -C $(PRINTF_DIR_DIR) clean
 
 fclean: clean
 	rm -f $(NAME)
 	make -C $(LIBFT_DIR) fclean
+	make -C $(PRINTF_DIR) fclean
 
 re: fclean all
 
 .PHONY: all clean fclean re
+
+sup:
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --suppressions=suppression/rline.supp ./minishell
