@@ -34,12 +34,16 @@ static int	execute_builtin_with_redir(t_cmd *cmd, t_shell *shell)
 	return (result);
 }
 
-static void	exe_child_process(t_cmd *cmd, char *executable)
+static void	exe_child_process(t_cmd *cmd, char *executable, t_shell *shell)
 {
+	char	**envp;
+
 	if (handle_redirections(cmd->redirs) != 0)
 		exit(1);
-	if (execve(executable, cmd->args, NULL) == -1)
+	envp = env_to_array(shell->env);
+	if (execve(executable, cmd->args, envp) == -1)
 	{
+		free_env_array(envp);
 		perror("minishell");
 		exit(127);
 	}
@@ -56,7 +60,7 @@ static int	execute_external_command(t_cmd *cmd, t_shell *shell)
 	pid = fork();
 	if (pid == 0)
 	{
-		exe_child_process(cmd, executable);
+		exe_child_process(cmd, executable, shell);
 	}
 	else if (pid > 0)
 	{
