@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
+/*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 08:18:07 by ldos_sa2          #+#    #+#             */
-/*   Updated: 2025/10/27 01:31:58 by ldos_sa2         ###   ########.fr       */
+/*   Updated: 2025/10/27 10:29:29 by ldos-sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ extern int	g_signal_received;
 typedef enum e_token_type
 {
 	TOKEN_WORD,
+	TOKEN_QUOTED,
 	TOKEN_PIPE,
 	TOKEN_REDIR_IN,
 	TOKEN_REDIR_OUT,
@@ -97,6 +98,8 @@ void		split_process(char *input);
 t_token		*lexer_tokenize(char *input);
 void		print_tokens(t_token *tokens);
 int			validate_tokens(t_token *tokens);
+void		add_quoted_token(char *token, t_token **ls);
+void		add_pipe_token(char *token, t_token **ls);
 
 /* Parser  */
 t_cmd		*parse_tokens(t_token *tokens, t_shell *shell);

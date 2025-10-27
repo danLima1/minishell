@@ -6,7 +6,7 @@
 /*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 08:18:07 by ldos_sa2          #+#    #+#             */
-/*   Updated: 2025/10/06 21:50:44 by ldos_sa2         ###   ########.fr       */
+/*   Updated: 2025/10/27 03:05:09 by ldos_sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,14 @@ static int	is_redir(char *token)
 	if (!ft_strncmp(token, ">", 1) || !ft_strncmp(token, "<", 1))
 		return (1);
 	else if (!ft_strncmp(token, ">>", 2) || !ft_strncmp(token, "<<", 2))
+		return (1);
+	else
+		return (0);
+}
+
+static int	is_quoted(char *token)
+{
+	if (!ft_strncmp(token, "\"", 1) || !ft_strncmp(token, "'", 1))
 		return (1);
 	else
 		return (0);
@@ -59,10 +67,9 @@ static t_token	*create_token_list(char **token_array)
 	while (token_array[i])
 	{
 		if (!ft_strncmp(token_array[i], "|", 1))
-		{
-			node = newnode(token_array[i], TOKEN_PIPE);
-			nodeadd_back(&tokens, node);
-		}
+			add_pipe_token(token_array[i], &tokens);
+		else if (is_quoted(token_array[i]))
+			add_quoted_token(token_array[i], &tokens);
 		else if (is_redir(token_array[i]))
 			add_redir_token(token_array[i], &tokens);
 		else

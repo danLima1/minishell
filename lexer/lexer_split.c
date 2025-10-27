@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer_split.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
+/*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 14:36:27 by ldos_sa2          #+#    #+#             */
-/*   Updated: 2025/10/25 14:40:48 by ldos_sa2         ###   ########.fr       */
+/*   Updated: 2025/10/27 10:27:10 by ldos-sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,8 @@ static char	*copy_tokens(const char *s, int *i)
 	if (s[*i] == '"' || s[*i] == '\'')
 	{
 		q = s[*i];
-		(*i)++;
 		start = *i;
+		(*i)++;
 		while (s[*i] && s[*i] != q)
 			(*i)++;
 		token = ft_substr(s, start, *i - start);

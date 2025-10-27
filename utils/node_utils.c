@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   node_utils.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
+/*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/04 15:50:10 by ldos_sa2          #+#    #+#             */
-/*   Updated: 2025/10/25 14:37:01 by ldos_sa2         ###   ########.fr       */
+/*   Updated: 2025/10/27 14:26:35 by ldos-sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ t_token	*newnode(char *v, t_token_type type)
 	char	*value;
 
 	value = ft_strdup(v);
-	new_node = (t_token *)malloc(sizeof(t_token));
+	new_node = (t_token *)malloc(sizeof(t_token) + 1);
 	if (!new_node)
 		return (NULL);
 	new_node->value = value;

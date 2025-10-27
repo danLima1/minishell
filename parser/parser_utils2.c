@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_utils2.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dde-lima <dde-lima@student.42.rio>         +#+  +:+       +#+        */
+/*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/26 19:40:01 by ldos-sa2          #+#    #+#             */
-/*   Updated: 2025/10/26 21:43:54 by dde-lima         ###   ########.fr       */
+/*   Updated: 2025/10/27 10:20:52 by ldos-sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ static void	add_redir_to_cmd(t_cmd *cmd, t_token_type type, char *file)
 		return ;
 	new_redir->type = type;
 	new_redir->file = ft_strdup(file);
+	new_redir->eof = NULL;
 	new_redir->eof = NULL;
 	new_redir->next = NULL;
 	if (!cmd->redirs)

@@ -6,7 +6,7 @@
 /*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 11:46:32 by dde-lima          #+#    #+#             */
-/*   Updated: 2025/10/26 17:54:53 by ldos-sa2         ###   ########.fr       */
+/*   Updated: 2025/10/27 14:51:12 by ldos-sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,32 +51,65 @@ static char	*expand_variable(char *var_name, t_env *env, int last_exit)
 	return (ft_strdup(""));
 }
 
-static int	process_var(char *var_name, char *result, int *j, t_shell *shell)
+static char	*process_var(char *var_name, int *j, t_shell *shell)
 {
 	char	*var_value;
+	char	*result;
 
 	if (!var_name)
-		return (0);
+		return (NULL);
 	var_value = expand_variable(var_name, shell->env, shell->exit_status);
+	result = malloc(ft_strlen(var_value) + 1);
 	if (var_value)
 	{
 		ft_strcpy(result + *j, var_value);
 		*j += ft_strlen(var_value);
 		free(var_value);
 	}
-	free(var_name);
-	return (1);
+	//free(var_name);
+	return (result);
+}
+static int	get_expand_size(char *str, t_shell *shell)
+{
+	char	*result;
+	char	*var_name;
+	int		i;
+	int		len;
+
+	i = 0;
+	len = 0;
+	while (str[i])
+	{
+		if (str[i] == '$' && str[i + 1])
+		{
+			i++;
+			var_name = get_var_name(str, &i);
+			result = expand_variable(var_name, shell->env, shell->exit_status);
+			len += ft_strlen(result);
+			free(var_name);
+			free(result);
+		}
+		else
+		{
+			i++;
+			len++;
+		}
+	}
+	ft_printf("length: %d\n", len);
+	return(len);
 }
 
-static char	*init_result_buffer(char *str)
+static char	*init_result_buffer(char *str, t_shell *shell)
 {
 	char	*result;
 
 	if (!str)
 		return (NULL);
-	result = malloc(ft_strlen(str) * 2 + 1);
+	result = (char *)malloc((get_expand_size(str, shell)) + 1);
 	return (result);
 }
+
+
 
 char	*expand_string(char *str, t_shell *shell)
 {
@@ -85,7 +118,7 @@ char	*expand_string(char *str, t_shell *shell)
 	int		i;
 	int		j;
 
-	result = init_result_buffer(str);
+	result = init_result_buffer(str, shell);
 	if (!result)
 		return (NULL);
 	i = 0;
@@ -96,7 +129,8 @@ char	*expand_string(char *str, t_shell *shell)
 		{
 			i++;
 			var_name = get_var_name(str, &i);
-			if (!process_var(var_name, result, &j, shell))
+			result = ft_strdup(process_var(var_name, &j, shell));
+			if (process_var(var_name, &j, shell) == NULL)
 				return (free(result), NULL);
 		}
 		else
