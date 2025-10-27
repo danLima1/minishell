@@ -3,19 +3,28 @@
 /*                                                        :::      ::::::::   */
 /*   parser_main.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
+/*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 14:08:43 by dde-lima          #+#    #+#             */
-/*   Updated: 2025/10/27 03:27:51 by ldos_sa2         ###   ########.fr       */
+/*   Updated: 2025/10/27 10:27:39 by ldos-sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
+static char	*get_expanded_arg(char *arg, t_shell *shell)
+{
+	char	*expanded_arg;
+
+	expanded_arg = expand_string(arg, shell);
+	if (expanded_arg)
+		return (expanded_arg);
+	return (ft_strdup(arg));
+}
+
 static void	add_arg_to_cmd(t_cmd *cmd, char *arg, t_shell *shell)
 {
 	char	**new_args;
-	char	*expanded_arg;
 	int		count;
 	int		i;
 
@@ -29,11 +38,7 @@ static void	add_arg_to_cmd(t_cmd *cmd, char *arg, t_shell *shell)
 		new_args[i] = cmd->args[i];
 		i++;
 	}
-	expanded_arg = expand_string(arg, shell);
-	if (expanded_arg)
-		new_args[count] = expanded_arg;
-	else
-		expanded_arg = ft_strdup(arg);
+	new_args[count] = get_expanded_arg(arg, shell);
 	new_args[count + 1] = NULL;
 	if (cmd->args)
 		free(cmd->args);
@@ -80,7 +85,7 @@ static void	token_arg(t_token *t, t_shell *shell, t_cmd *current_cmd)
 		}
 		else if (t->type == TOKEN_REDIR_IN || t->type == TOKEN_REDIR_OUT
 			|| t->type == TOKEN_REDIR_APPEND || t->type == TOKEN_HEREDOC)
-			handle_redd_arg(current_cmd, t);
+			t = handle_redd_arg(current_cmd, t);
 		t = t->next;
 	}
 }

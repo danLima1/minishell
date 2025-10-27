@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
+/*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 08:18:07 by ldos_sa2          #+#    #+#             */
-/*   Updated: 2025/10/27 02:37:21 by ldos_sa2         ###   ########.fr       */
+/*   Updated: 2025/10/27 10:29:29 by ldos-sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,7 @@ typedef struct s_shell
 	int					exit_status;
 	int					stdin_backup;
 	int					stdout_backup;
+	int					should_exit;
 }	t_shell;
 
 /* Legacy precisa de refatoracao */
@@ -106,7 +107,7 @@ void		free_cmd_list(t_cmd *cmd_list);
 void		print_cmd_list(t_cmd *cmd_list);
 int			count_commands(t_cmd *cmd);
 t_cmd		*create_cmd(void);
-void		handle_redd_arg(t_cmd *current_cmd, t_token *t);
+t_token		*handle_redd_arg(t_cmd *current_cmd, t_token *t);
 
 /* Expander  */
 char		*expand_string(char *str, t_shell *shell);
@@ -120,6 +121,7 @@ int			execute_pipeline(t_cmd *cmd_list, t_shell *shell);
 char		*find_executable(char *cmd, t_env *env);
 char		*get_path_env(t_env *env);
 int			handle_redirections(t_redir *redirs);
+int			handle_heredoc(char *delimiter);
 void		setup_child_pipes(int prev_fd, int *pipe_fd, t_cmd *current);
 void		execute_child_process(t_cmd *current, t_shell *shell);
 
@@ -127,7 +129,7 @@ void		execute_child_process(t_cmd *current, t_shell *shell);
 int			builtin_echo(char **args);
 int			builtin_pwd(char **args);
 int			builtin_env(char **args, t_env *env);
-int			builtin_exit(char **args);
+int			builtin_exit(char **args, t_shell *shell);
 int			builtin_cd(char **args, t_env *env);
 int			builtin_export(char **args, t_env **env);
 int			builtin_unset(char **args, t_env **env);
@@ -153,5 +155,6 @@ void		error_exit(char *msg, int exit_code);
 void		signals_init(void);
 void		signals_handle_sigint(int sig);
 void		signals_handle_sigquit(int sig);
+
 
 #endif

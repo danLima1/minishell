@@ -6,7 +6,7 @@
 /*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/23 17:22:34 by dde-lima          #+#    #+#             */
-/*   Updated: 2025/10/26 22:16:45 by ldos-sa2         ###   ########.fr       */
+/*   Updated: 2025/10/27 12:58:12 by ldos-sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ static int	add_or_update_env(t_env **env, char *key, char *value)
 		}
 		current = current->next;
 	}
-	new_env = malloc(sizeof(t_env));
+	new_env = malloc(sizeof(t_env) + 1);
 	if (!new_env)
 		return (1);
 	new_env->key = ft_strdup(key);

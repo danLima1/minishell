@@ -6,7 +6,7 @@
 /*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 08:18:07 by ldos_sa2          #+#    #+#             */
-/*   Updated: 2025/10/26 22:15:56 by ldos-sa2         ###   ########.fr       */
+/*   Updated: 2025/10/27 14:45:56 by ldos-sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,16 +32,10 @@ static void	process_input(char *input, t_shell *shell)
 	free_nodelist(tokens);
 }
 
-int	main(int argc, char **argv, char **envp)
+static void	shell_loop(t_shell *shell)
 {
-	t_shell	shell;
 	char	*input;
 
-	(void)argc;
-	(void)argv;
-	shell.env = init_env(envp);
-	shell.exit_status = 0;
-	signals_init();
 	while (1)
 	{
 		g_signal_received = 0;
@@ -53,9 +47,25 @@ int	main(int argc, char **argv, char **envp)
 		}
 		if (*input)
 			add_history(input);
-		process_input(input, &shell);
+		process_input(input, shell);
 		free(input);
+		if (shell->should_exit)
+			break ;
 	}
+}
+
+int	main(int argc, char **argv, char **envp)
+{
+	t_shell	shell;
+
+	(void)argc;
+	(void)argv;
+	shell.env = init_env(envp);
+	shell.exit_status = 0;
+	shell.should_exit = 0;
+	signals_init();
+	shell_loop(&shell);
+	rl_clear_history();
 	free_env(shell.env);
 	return (shell.exit_status);
 }

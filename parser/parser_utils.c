@@ -21,6 +21,8 @@ void	free_redir_list(t_redir *redir_list)
 		tmp = redir_list->next;
 		if (redir_list->file)
 			free(redir_list->file);
+		if (redir_list->eof)
+			free(redir_list->eof);
 		free(redir_list);
 		redir_list = tmp;
 	}
