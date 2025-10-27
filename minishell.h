@@ -125,7 +125,7 @@ void		execute_child_process(t_cmd *current, t_shell *shell);
 int			builtin_echo(char **args);
 int			builtin_pwd(char **args);
 int			builtin_env(char **args, t_env *env);
-int			builtin_exit(char **args);
+int			builtin_exit(char **args, t_shell *shell);
 int			builtin_cd(char **args, t_env *env);
 int			builtin_export(char **args, t_env **env);
 int			builtin_unset(char **args, t_env **env);

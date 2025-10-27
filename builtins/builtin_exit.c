@@ -32,17 +32,24 @@ static int	is_numeric(char *str)
 	return (1);
 }
 
-int	builtin_exit(char **args)
+static void	cleanup_and_exit(t_shell *shell, int code)
+{
+	rl_clear_history();
+	free_env(shell->env);
+	exit(code);
+}
+
+int	builtin_exit(char **args, t_shell *shell)
 {
 	int	exit_code;
 
 	printf("exit\n");
 	if (!args[1])
-		exit(0);
+		cleanup_and_exit(shell, 0);
 	if (!is_numeric(args[1]))
 	{
 		printf("minishell: exit: %s: numeric argument required\n", args[1]);
-		exit(2);
+		cleanup_and_exit(shell, 2);
 	}
 	if (args[2])
 	{
@@ -50,5 +57,5 @@ int	builtin_exit(char **args)
 		return (1);
 	}
 	exit_code = ft_atoi(args[1]);
-	exit(exit_code);
+	cleanup_and_exit(shell, exit_code);
 }

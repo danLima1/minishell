@@ -12,10 +12,19 @@
 
 #include "../minishell.h"
 
+static char	*get_expanded_arg(char *arg, t_shell *shell)
+{
+	char	*expanded_arg;
+
+	expanded_arg = expand_string(arg, shell);
+	if (expanded_arg)
+		return (expanded_arg);
+	return (ft_strdup(arg));
+}
+
 static void	add_arg_to_cmd(t_cmd *cmd, char *arg, t_shell *shell)
 {
 	char	**new_args;
-	char	*expanded_arg;
 	int		count;
 	int		i;
 
@@ -29,11 +38,7 @@ static void	add_arg_to_cmd(t_cmd *cmd, char *arg, t_shell *shell)
 		new_args[i] = cmd->args[i];
 		i++;
 	}
-	expanded_arg = expand_string(arg, shell);
-	if (expanded_arg)
-		new_args[count] = expanded_arg;
-	else
-		expanded_arg = ft_strdup(arg);
+	new_args[count] = get_expanded_arg(arg, shell);
 	new_args[count + 1] = NULL;
 	if (cmd->args)
 		free(cmd->args);
