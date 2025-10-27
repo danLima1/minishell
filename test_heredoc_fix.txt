@@ -1,0 +1,120 @@
+==========================================
+TESTE DO BUG CORRIGIDO - HEREDOC
+==========================================
+
+PROBLEMA ORIGINAL:
+------------------
+Quando executava:
+  cat << oi
+  > teste
+  > teste 2
+  > oi
+
+Retornava:
+  cat: oi: arquivo ou diretorio inexistente
+
+CAUSA:
+------
+O delimitador "oi" estava sendo adicionado como 
+argumento do comando cat, em vez de ser tratado
+apenas como delimitador do heredoc.
+
+SOLUÇÃO:
+--------
+Modificado parser_utils2.c para que handle_redd_arg
+retorne o token correto (t_token*), permitindo
+que o parser pule o token do delimitador.
+
+TESTE DE VALIDAÇÃO:
+-------------------
+
+1. Execute no minishell:
+   cat << oi
+   > primeira linha
+   > segunda linha
+   > terceira linha
+   > oi
+
+RESULTADO ESPERADO:
+   primeira linha
+   segunda linha
+   terceira linha
+
+(SEM o erro "cat: oi: arquivo ou diretorio inexistente")
+
+==========================================
+
+2. Teste com delimitador diferente:
+   cat << FIM
+   > linha 1
+   > linha 2
+   > FIM
+
+RESULTADO ESPERADO:
+   linha 1
+   linha 2
+
+==========================================
+
+3. Teste com echo:
+   echo texto << EOF
+   > conteudo heredoc
+   > EOF
+
+RESULTADO ESPERADO:
+   texto
+
+(O heredoc não deve interferir pois echo não lê stdin)
+
+==========================================
+
+4. Teste com grep:
+   grep "test" << END
+   > test line
+   > other line
+   > test again
+   > END
+
+RESULTADO ESPERADO:
+   test line
+   test again
+
+==========================================
+
+5. Teste com wc -l:
+   wc -l << EOF
+   > 1
+   > 2
+   > 3
+   > 4
+   > 5
+   > EOF
+
+RESULTADO ESPERADO:
+   5
+
+==========================================
+
+ARQUIVOS MODIFICADOS:
+---------------------
+1. parser/parser_utils2.c
+   - handle_redd_arg agora retorna t_token*
+   - Retorna o token após o arquivo/delimitador
+
+2. parser/parser_main.c
+   - token_arg agora usa o retorno de handle_redd_arg
+   - Atualiza t corretamente para pular o delimitador
+
+3. minishell.h
+   - Protótipo de handle_redd_arg atualizado
+
+VERIFICAÇÃO DA NORMA:
+---------------------
+✅ handle_redd_arg: 21 linhas (< 25)
+✅ token_arg: 16 linhas (< 25)
+✅ Todas as funções: <= 4 parâmetros
+✅ Sem for loops
+✅ Sem ternários
+
+==========================================
+

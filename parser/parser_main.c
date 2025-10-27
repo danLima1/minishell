@@ -53,7 +53,7 @@ static void	token_arg(t_token *t, t_shell *shell, t_cmd *current_cmd)
 		}
 		else if (t->type == TOKEN_REDIR_IN || t->type == TOKEN_REDIR_OUT
 			|| t->type == TOKEN_REDIR_APPEND || t->type == TOKEN_HEREDOC)
-			handle_redd_arg(current_cmd, t);
+			t = handle_redd_arg(current_cmd, t);
 		t = t->next;
 	}
 }

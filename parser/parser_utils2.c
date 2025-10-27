@@ -22,6 +22,7 @@ static void	add_redir_to_cmd(t_cmd *cmd, t_token_type type, char *file)
 		return ;
 	new_redir->type = type;
 	new_redir->file = ft_strdup(file);
+	new_redir->eof = NULL;
 	new_redir->next = NULL;
 	if (!cmd->redirs)
 		cmd->redirs = new_redir;
@@ -43,6 +44,7 @@ static void	add_eof_to_cmd(t_cmd *cmd, t_token_type type, char *file)
 	if (!new_redir)
 		return ;
 	new_redir->type = type;
+	new_redir->file = NULL;
 	new_redir->eof = ft_strdup(file);
 	new_redir->next = NULL;
 	if (!cmd->redirs)
@@ -56,7 +58,7 @@ static void	add_eof_to_cmd(t_cmd *cmd, t_token_type type, char *file)
 	}
 }
 
-void	handle_redd_arg(t_cmd *current_cmd, t_token *t)
+t_token	*handle_redd_arg(t_cmd *current_cmd, t_token *t)
 {
 	if (t->type == TOKEN_REDIR_IN || t->type == TOKEN_REDIR_OUT
 		|| t->type == TOKEN_REDIR_APPEND)
@@ -64,7 +66,7 @@ void	handle_redd_arg(t_cmd *current_cmd, t_token *t)
 		if (t->next && t->next->type == TOKEN_WORD)
 		{
 			add_redir_to_cmd(current_cmd, t->type, t->next->value);
-			t = t->next;
+			return (t->next);
 		}
 	}
 	else if (t->type == TOKEN_HEREDOC)
@@ -72,7 +74,8 @@ void	handle_redd_arg(t_cmd *current_cmd, t_token *t)
 		if (t->next && t->next->type == TOKEN_WORD)
 		{
 			add_eof_to_cmd(current_cmd, t->type, t->next->value);
-			t = t->next;
+			return (t->next);
 		}
 	}
+	return (t);
 }

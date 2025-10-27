@@ -103,7 +103,7 @@ void		free_cmd_list(t_cmd *cmd_list);
 void		print_cmd_list(t_cmd *cmd_list);
 int			count_commands(t_cmd *cmd);
 t_cmd		*create_cmd(void);
-void		handle_redd_arg(t_cmd *current_cmd, t_token *t);
+t_token		*handle_redd_arg(t_cmd *current_cmd, t_token *t);
 
 /* Expander  */
 char		*expand_string(char *str, t_shell *shell);

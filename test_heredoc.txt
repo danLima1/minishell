@@ -1,0 +1,121 @@
+==========================================
+TESTES PARA HEREDOC - MINISHELL
+==========================================
+
+Para testar, compile primeiro:
+$ make
+
+Depois execute os seguintes testes:
+
+==========================================
+TESTE 1: Heredoc básico com cat
+==========================================
+Input:
+cat << EOF
+linha 1
+linha 2
+linha 3
+EOF
+
+Resultado esperado:
+> (prompt para input)
+linha 1
+linha 2
+linha 3
+
+==========================================
+TESTE 2: Heredoc com comando grep
+==========================================
+Input:
+grep "test" << END
+test line
+other line
+test again
+END
+
+Resultado esperado:
+test line
+test again
+
+==========================================
+TESTE 3: Heredoc com wc -l (contar linhas)
+==========================================
+Input:
+wc -l << EOF
+linha 1
+linha 2
+linha 3
+linha 4
+EOF
+
+Resultado esperado:
+4
+
+==========================================
+TESTE 4: Heredoc com variáveis de ambiente
+==========================================
+Input:
+cat << EOF
+User: $USER
+Path: $PATH
+EOF
+
+Resultado esperado:
+User: [seu usuário]
+Path: [seu PATH]
+
+==========================================
+TESTE 5: EOF antes do delimitador (Ctrl+D)
+==========================================
+Input:
+cat << EOF
+linha 1
+[pressione Ctrl+D aqui]
+
+Resultado esperado:
+minishell: warning: here-document delimited by EOF
+linha 1
+
+==========================================
+TESTE 6: Heredoc com redirecionamento de saída
+==========================================
+Input:
+cat << EOF > output_test.txt
+teste de heredoc
+com redirecionamento
+EOF
+
+Depois:
+cat output_test.txt
+
+Resultado esperado:
+teste de heredoc
+com redirecionamento
+
+==========================================
+TESTE 7: Heredoc em pipeline
+==========================================
+Input:
+cat << EOF | grep "importante"
+linha normal
+linha importante
+outra normal
+EOF
+
+Resultado esperado:
+linha importante
+
+==========================================
+TESTE 8: Múltiplos heredocs (se implementado)
+==========================================
+Input:
+cat << EOF1 << EOF2
+teste
+EOF1
+outro
+EOF2
+
+(Teste avançado - pode não funcionar dependendo da implementação)
+
+==========================================
+
