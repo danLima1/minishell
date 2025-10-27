@@ -3,27 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   parser_main.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
+/*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 14:08:43 by dde-lima          #+#    #+#             */
-/*   Updated: 2025/10/25 15:06:40 by ldos_sa2         ###   ########.fr       */
+/*   Updated: 2025/10/26 19:55:40 by ldos-sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
-
-static t_cmd	*create_cmd(void)
-{
-	t_cmd	*cmd;
-
-	cmd = malloc(sizeof(t_cmd));
-	if (!cmd)
-		return (NULL);
-	cmd->args = NULL;
-	cmd->redirs = NULL;
-	cmd->next = NULL;
-	return (cmd);
-}
 
 static void	add_arg_to_cmd(t_cmd *cmd, char *arg, t_shell *shell)
 {
@@ -53,28 +40,6 @@ static void	add_arg_to_cmd(t_cmd *cmd, char *arg, t_shell *shell)
 	cmd->args = new_args;
 }
 
-static void	add_redir_to_cmd(t_cmd *cmd, t_token_type type, char *file)
-{
-	t_redir	*new_redir;
-	t_redir	*current;
-
-	new_redir = malloc(sizeof(t_redir));
-	if (!new_redir)
-		return ;
-	new_redir->type = type;
-	new_redir->file = ft_strdup(file);
-	new_redir->next = NULL;
-	if (!cmd->redirs)
-		cmd->redirs = new_redir;
-	else
-	{
-		current = cmd->redirs;
-		while (current->next)
-			current = current->next;
-		current->next = new_redir;
-	}
-}
-
 static void	token_arg(t_token *t, t_shell *shell, t_cmd *current_cmd)
 {
 	while (t)
@@ -88,13 +53,7 @@ static void	token_arg(t_token *t, t_shell *shell, t_cmd *current_cmd)
 		}
 		else if (t->type == TOKEN_REDIR_IN || t->type == TOKEN_REDIR_OUT
 			|| t->type == TOKEN_REDIR_APPEND || t->type == TOKEN_HEREDOC)
-		{
-			if (t->next && t->next->type == TOKEN_WORD)
-			{
-				add_redir_to_cmd(current_cmd, t->type, t->next->value);
-				t = t->next;
-			}
-		}
+			handle_redd_arg(current_cmd, t);
 		t = t->next;
 	}
 }

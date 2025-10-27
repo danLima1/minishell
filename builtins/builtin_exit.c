@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtin_exit.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
+/*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/11 12:01:04 by dde-lima          #+#    #+#             */
-/*   Updated: 2025/10/25 17:00:37 by ldos_sa2         ###   ########.fr       */
+/*   Updated: 2025/10/26 16:52:32 by ldos-sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,17 +36,17 @@ int	builtin_exit(char **args)
 {
 	int	exit_code;
 
-	printf("exit\n");
+	ft_printf("exit\n");
 	if (!args[1])
 		exit(0);
 	if (!is_numeric(args[1]))
 	{
-		printf("minishell: exit: %s: numeric argument required\n", args[1]);
+		ft_printf("minishell: exit: %s: numeric argument required\n", args[1]);
 		exit(2);
 	}
 	if (args[2])
 	{
-		printf("minishell: exit: too many arguments\n");
+		ft_printf("minishell: exit: too many arguments\n");
 		return (1);
 	}
 	exit_code = ft_atoi(args[1]);

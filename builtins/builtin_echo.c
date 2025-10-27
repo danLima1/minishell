@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtin_echo.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
+/*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/25 19:36:21 by dde-lima          #+#    #+#             */
-/*   Updated: 2025/10/25 15:08:02 by ldos_sa2         ###   ########.fr       */
+/*   Updated: 2025/10/26 16:52:00 by ldos-sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,12 +46,12 @@ int	builtin_echo(char **args)
 	}
 	while (args[i])
 	{
-		printf("%s", args[i]);
+		ft_printf("%s", args[i]);
 		if (args[i + 1])
-			printf(" ");
+			ft_printf(" ");
 		i++;
 	}
 	if (newline)
-		printf("\n");
+		ft_printf("\n");
 	return (0);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   signals.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
+/*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/23 10:48:13 by ldos_sa2          #+#    #+#             */
-/*   Updated: 2025/10/25 14:33:51 by ldos_sa2         ###   ########.fr       */
+/*   Updated: 2025/10/26 16:51:41 by ldos-sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ void	signals_handle_sigint(int sig)
 {
 	(void)sig;
 	g_signal_received = SIGINT;
-	printf("\n");
+	ft_printf("\n");
 	rl_on_new_line();
 	rl_replace_line("", 0);
 	rl_redisplay();

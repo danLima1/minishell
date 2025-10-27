@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_utils.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
+/*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:50:17 by dde-lima          #+#    #+#             */
-/*   Updated: 2025/10/25 14:50:40 by ldos_sa2         ###   ########.fr       */
+/*   Updated: 2025/10/26 19:39:00 by ldos-sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,17 +59,17 @@ void	print_cmd_list(t_cmd *cmd_list)
 	current = cmd_list;
 	while (current)
 	{
-		printf("Command: ");
+		ft_printf("Command: ");
 		if (current->args)
 		{
 			i = 0;
 			while (current->args[i])
 			{
-				printf("'%s' ", current->args[i]);
+				ft_printf("'%s' ", current->args[i]);
 				i++;
 			}
 		}
-		printf("\n");
+		ft_printf("\n");
 		current = current->next;
 	}
 }
@@ -87,4 +87,17 @@ int	count_commands(t_cmd *cmd)
 			count++;
 	}
 	return (count);
+}
+
+t_cmd	*create_cmd(void)
+{
+	t_cmd	*cmd;
+
+	cmd = malloc(sizeof(t_cmd));
+	if (!cmd)
+		return (NULL);
+	cmd->args = NULL;
+	cmd->redirs = NULL;
+	cmd->next = NULL;
+	return (cmd);
 }

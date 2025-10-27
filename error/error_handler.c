@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   error_handler.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
+/*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/11 12:43:19 by ldos_sa2          #+#    #+#             */
-/*   Updated: 2025/10/25 15:24:43 by ldos_sa2         ###   ########.fr       */
+/*   Updated: 2025/10/26 16:53:06 by ldos-sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,24 +14,24 @@
 
 void	print_error(char *cmd, char *arg, char *msg)
 {
-	printf("minishell: ");
+	ft_printf("minishell: ");
 	if (cmd)
-		printf("%s: ", cmd);
+		ft_printf("%s: ", cmd);
 	if (arg)
-		printf("%s: ", arg);
+		ft_printf("%s: ", arg);
 	if (msg)
-		printf("%s", msg);
-	printf("\n");
+		ft_printf("%s", msg);
+	ft_printf("\n");
 }
 
 void	syntax_error(char *token)
 {
-	printf("minishell: syntax error near unexpected token `%s'\n", token);
+	ft_printf("minishell: syntax error near unexpected token `%s'\n", token);
 }
 
 int	handle_malloc_error(void)
 {
-	printf("minishell: memory allocation failed\n");
+	ft_printf("minishell: memory allocation failed\n");
 	return (1);
 }
 

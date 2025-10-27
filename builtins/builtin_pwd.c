@@ -23,7 +23,7 @@ int	builtin_pwd(char **args)
 		perror("pwd");
 		return (1);
 	}
-	printf("%s\n", cwd);
+	ft_printf("%s\n", cwd);
 	free(cwd);
 	return (0);
 }

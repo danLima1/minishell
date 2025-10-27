@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer_main.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
+/*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/17 01:43:27 by dde-lima          #+#    #+#             */
-/*   Updated: 2025/10/25 17:09:35 by ldos_sa2         ###   ########.fr       */
+/*   Updated: 2025/10/26 19:18:07 by ldos-sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ void	print_tokens(t_token *tokens)
 	current = tokens;
 	while (current)
 	{
-		printf("Token: '%s', Type: %d\n", current->value, current->type);
+		ft_printf("Token: '%s', Type: %d\n", current->value, current->type);
 		current = current->next;
 	}
 }
