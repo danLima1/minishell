@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_main.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
+/*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 14:08:43 by dde-lima          #+#    #+#             */
-/*   Updated: 2025/10/26 22:12:53 by ldos-sa2         ###   ########.fr       */
+/*   Updated: 2025/10/27 03:27:51 by ldos_sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,11 +40,38 @@ static void	add_arg_to_cmd(t_cmd *cmd, char *arg, t_shell *shell)
 	cmd->args = new_args;
 }
 
+static void	add_quoted_to_cmd(t_cmd *cmd, char *arg)
+{
+	char	**new_args;
+	char	*expanded_arg;
+	int		count;
+	int		i;
+
+	count = count_commands(cmd);
+	new_args = malloc(sizeof(char *) * (count + 2));
+	if (!new_args)
+		return ;
+	i = 0;
+	while (i < count)
+	{
+		new_args[i] = cmd->args[i];
+		i++;
+	}
+	expanded_arg = ft_strdup(arg);
+	new_args[count] = expanded_arg;
+	new_args[count + 1] = NULL;
+	if (cmd->args)
+		free(cmd->args);
+	cmd->args = new_args;
+}
+
 static void	token_arg(t_token *t, t_shell *shell, t_cmd *current_cmd)
 {
 	while (t)
 	{
-		if (t->type == TOKEN_WORD)
+		if (t->type == TOKEN_QUOTED)
+			add_quoted_to_cmd(current_cmd, t->value);
+		else if (t->type == TOKEN_WORD)
 			add_arg_to_cmd(current_cmd, t->value, shell);
 		else if (t->type == TOKEN_PIPE)
 		{
