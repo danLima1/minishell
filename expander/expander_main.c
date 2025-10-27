@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expander_main.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
+/*   By: dde-lima <dde-lima@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 11:46:32 by dde-lima          #+#    #+#             */
-/*   Updated: 2025/10/27 14:51:12 by ldos-sa2         ###   ########.fr       */
+/*   Updated: 2025/10/27 15:44:56 by dde-lima         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,23 +51,22 @@ static char	*expand_variable(char *var_name, t_env *env, int last_exit)
 	return (ft_strdup(""));
 }
 
-static char	*process_var(char *var_name, int *j, t_shell *shell)
+static void	process_var(char *var_name, char *result, int *j, t_shell *shell)
 {
 	char	*var_value;
-	char	*result;
+	int len;
 
-	if (!var_name)
-		return (NULL);
+	if (!var_name || !result)
+		return ;
 	var_value = expand_variable(var_name, shell->env, shell->exit_status);
-	result = malloc(ft_strlen(var_value) + 1);
 	if (var_value)
 	{
+		len = ft_strlen(var_value);
 		ft_strcpy(result + *j, var_value);
-		*j += ft_strlen(var_value);
+		*j += len;
 		free(var_value);
 	}
-	//free(var_name);
-	return (result);
+	free(var_name);
 }
 static int	get_expand_size(char *str, t_shell *shell)
 {
@@ -129,9 +128,7 @@ char	*expand_string(char *str, t_shell *shell)
 		{
 			i++;
 			var_name = get_var_name(str, &i);
-			result = ft_strdup(process_var(var_name, &j, shell));
-			if (process_var(var_name, &j, shell) == NULL)
-				return (free(result), NULL);
+			process_var(var_name, result, &j, shell);
 		}
 		else
 			result[j++] = str[i++];
