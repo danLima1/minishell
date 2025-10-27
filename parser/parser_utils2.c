@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_utils2.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
+/*   By: dde-lima <dde-lima@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/26 19:40:01 by ldos-sa2          #+#    #+#             */
-/*   Updated: 2025/10/26 19:55:15 by ldos-sa2         ###   ########.fr       */
+/*   Updated: 2025/10/26 21:43:54 by dde-lima         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,20 +59,20 @@ static void	add_eof_to_cmd(t_cmd *cmd, t_token_type type, char *file)
 void	handle_redd_arg(t_cmd *current_cmd, t_token *t)
 {
 	if (t->type == TOKEN_REDIR_IN || t->type == TOKEN_REDIR_OUT
-			|| t->type == TOKEN_REDIR_APPEND)
+		|| t->type == TOKEN_REDIR_APPEND)
+	{
+		if (t->next && t->next->type == TOKEN_WORD)
 		{
-			if (t->next && t->next->type == TOKEN_WORD)
-			{
-				add_redir_to_cmd(current_cmd, t->type, t->next->value);
-				t = t->next;
-			}
+			add_redir_to_cmd(current_cmd, t->type, t->next->value);
+			t = t->next;
 		}
+	}
 	else if (t->type == TOKEN_HEREDOC)
+	{
+		if (t->next && t->next->type == TOKEN_WORD)
 		{
-			if (t->next && t->next->type == TOKEN_WORD)
-			{
-				add_eof_to_cmd(current_cmd, t->type, t->next->value);
-				t = t->next;
-			}
+			add_eof_to_cmd(current_cmd, t->type, t->next->value);
+			t = t->next;
 		}
+	}
 }
