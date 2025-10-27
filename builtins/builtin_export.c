@@ -6,7 +6,7 @@
 /*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/23 17:22:34 by dde-lima          #+#    #+#             */
-/*   Updated: 2025/10/26 16:52:26 by ldos-sa2         ###   ########.fr       */
+/*   Updated: 2025/10/26 22:16:45 by ldos-sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,9 @@ static void	print_export_env(t_env *env)
 	while (current)
 	{
 		if (current->value)
-			ft_printf("declare -x %s=\"%s\"\n", current->key, current->value);
+			printf("declare -x %s=\"%s\"\n", current->key, current->value);
 		else
-			ft_printf("declare -x %s\n", current->key);
+			printf("declare -x %s\n", current->key);
 		current = current->next;
 	}
 }

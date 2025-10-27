@@ -6,7 +6,7 @@
 /*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 08:18:07 by ldos_sa2          #+#    #+#             */
-/*   Updated: 2025/10/26 18:34:49 by ldos-sa2         ###   ########.fr       */
+/*   Updated: 2025/10/26 22:15:56 by ldos-sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ int	main(int argc, char **argv, char **envp)
 		input = readline("minishell$ ");
 		if (!input)
 		{
-			ft_printf("exit\n");
+			printf("exit\n");
 			break ;
 		}
 		if (*input)

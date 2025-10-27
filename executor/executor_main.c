@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   executor_main.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ldos_sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
+/*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/11 18:57:01 by dde-lima          #+#    #+#             */
-/*   Updated: 2025/10/25 16:59:52 by ldos_sa2         ###   ########.fr       */
+/*   Updated: 2025/10/26 22:44:02 by ldos-sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,9 +40,9 @@ int	execute_builtin(char **args, t_shell *shell)
 	if (ft_strcmp(args[0], "pwd") == 0)
 		return (builtin_pwd(args));
 	if (ft_strcmp(args[0], "env") == 0)
-		return (builtin_env(args, shell->env));
+		return (builtin_env(args, shell));
 	if (ft_strcmp(args[0], "exit") == 0)
-		return (builtin_exit(args));
+		return (builtin_exit(args, shell->env));
 	if (ft_strcmp(args[0], "cd") == 0)
 		return (builtin_cd(args, shell->env));
 	if (ft_strcmp(args[0], "export") == 0)

@@ -6,7 +6,7 @@
 /*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 12:45:19 by dde-lima          #+#    #+#             */
-/*   Updated: 2025/10/26 16:52:09 by ldos-sa2         ###   ########.fr       */
+/*   Updated: 2025/10/26 22:25:37 by ldos-sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,16 @@ int	builtin_env(char **args, t_env *env)
 	t_env	*current;
 
 	(void)args;
+	if (args[1])
+	{
+		printf("env: %s: No such file or directory\n", args[1]);
+		return(127);
+	}
 	current = env;
 	while (current)
 	{
 		if (current->value)
-			ft_printf("%s=%s\n", current->key, current->value);
+			printf("%s=%s\n", current->key, current->value);
 		current = current->next;
 	}
 	return (0);

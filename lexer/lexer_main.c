@@ -6,7 +6,7 @@
 /*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/17 01:43:27 by dde-lima          #+#    #+#             */
-/*   Updated: 2025/10/26 19:18:07 by ldos-sa2         ###   ########.fr       */
+/*   Updated: 2025/10/26 22:17:18 by ldos-sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ void	print_tokens(t_token *tokens)
 	current = tokens;
 	while (current)
 	{
-		ft_printf("Token: '%s', Type: %d\n", current->value, current->type);
+		printf("Token: '%s', Type: %d\n", current->value, current->type);
 		current = current->next;
 	}
 }

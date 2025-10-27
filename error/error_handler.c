@@ -6,7 +6,7 @@
 /*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/11 12:43:19 by ldos_sa2          #+#    #+#             */
-/*   Updated: 2025/10/26 16:53:06 by ldos-sa2         ###   ########.fr       */
+/*   Updated: 2025/10/26 22:17:03 by ldos-sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,24 +14,24 @@
 
 void	print_error(char *cmd, char *arg, char *msg)
 {
-	ft_printf("minishell: ");
+	printf("minishell: ");
 	if (cmd)
-		ft_printf("%s: ", cmd);
+		printf("%s: ", cmd);
 	if (arg)
-		ft_printf("%s: ", arg);
+		printf("%s: ", arg);
 	if (msg)
-		ft_printf("%s", msg);
-	ft_printf("\n");
+		printf("%s", msg);
+	printf("\n");
 }
 
 void	syntax_error(char *token)
 {
-	ft_printf("minishell: syntax error near unexpected token `%s'\n", token);
+	printf("minishell: syntax error near unexpected token `%s'\n", token);
 }
 
 int	handle_malloc_error(void)
 {
-	ft_printf("minishell: memory allocation failed\n");
+	printf("minishell: memory allocation failed\n");
 	return (1);
 }
 

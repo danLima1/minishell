@@ -6,7 +6,7 @@
 /*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/25 19:36:21 by dde-lima          #+#    #+#             */
-/*   Updated: 2025/10/26 16:52:00 by ldos-sa2         ###   ########.fr       */
+/*   Updated: 2025/10/26 22:16:27 by ldos-sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,12 +46,12 @@ int	builtin_echo(char **args)
 	}
 	while (args[i])
 	{
-		ft_printf("%s", args[i]);
+		printf("%s", args[i]);
 		if (args[i + 1])
-			ft_printf(" ");
+			printf(" ");
 		i++;
 	}
 	if (newline)
-		ft_printf("\n");
+		printf("\n");
 	return (0);
 }

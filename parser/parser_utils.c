@@ -6,7 +6,7 @@
 /*   By: ldos-sa2 <ldos-sa2@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 23:50:17 by dde-lima          #+#    #+#             */
-/*   Updated: 2025/10/26 19:39:00 by ldos-sa2         ###   ########.fr       */
+/*   Updated: 2025/10/26 22:17:24 by ldos-sa2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,17 +59,17 @@ void	print_cmd_list(t_cmd *cmd_list)
 	current = cmd_list;
 	while (current)
 	{
-		ft_printf("Command: ");
+		printf("Command: ");
 		if (current->args)
 		{
 			i = 0;
 			while (current->args[i])
 			{
-				ft_printf("'%s' ", current->args[i]);
+				printf("'%s' ", current->args[i]);
 				i++;
 			}
 		}
-		ft_printf("\n");
+		printf("\n");
 		current = current->next;
 	}
 }
