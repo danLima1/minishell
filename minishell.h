@@ -78,6 +78,7 @@ typedef struct s_shell
 	int					exit_status;
 	int					stdin_backup;
 	int					stdout_backup;
+	int					should_exit;
 }	t_shell;
 
 /* Legacy precisa de refatoracao */
