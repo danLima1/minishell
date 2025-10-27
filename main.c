@@ -49,6 +49,8 @@ static void	shell_loop(t_shell *shell)
 			add_history(input);
 		process_input(input, shell);
 		free(input);
+		if (shell->should_exit)
+			break ;
 	}
 }
 
@@ -60,6 +62,7 @@ int	main(int argc, char **argv, char **envp)
 	(void)argv;
 	shell.env = init_env(envp);
 	shell.exit_status = 0;
+	shell.should_exit = 0;
 	signals_init();
 	shell_loop(&shell);
 	rl_clear_history();
